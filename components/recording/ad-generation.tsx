@@ -2,260 +2,191 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Script } from "./models";
-import { PREDEFINED_SPEAKERS, Speaker } from "./speakers-info";
+import { Speaker } from "./speakers-info";
 import { Card } from "../ui/card";
 import { Loader2 } from "lucide-react";
-import { ElevenLabsClient } from "elevenlabs";
-import {
-  getCachedVoiceLine,
-  cacheVoiceLine,
-  CachedVoiceLine,
-} from "./voicelines-cache";
 import { useRouter } from "next/navigation";
 import { useVoiceLines } from "../../contexts/VoiceLinesContext";
+import { getAuth } from "firebase/auth";
+import { ElevenLabsVoiceResponse, StoredRecording } from "@/types/voice-types";
 
 interface AdGenerationProps {
-  duration: number;
-  speakers: Speaker[];
-  script: Script;
-  onComplete: (audioUrl: string) => void;
-}
-
-const client = new ElevenLabsClient({
-  apiKey: "sk_b88e7fbea803cfd374bd9924d31d5141b5503f2c5f290c37",
-});
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Add this interface to type the API response
-interface ElevenLabsResponse {
-  audio_base64: string;
-  alignment: {
-    characters: string[];
-    character_start_times_seconds: number[];
-    character_end_times_seconds: number[];
-  };
-  normalized_alignment: {
-    characters: string[];
-    character_start_times_seconds: number[];
-    character_end_times_seconds: number[];
-  };
-}
-
-interface VoiceLineData {
-  audioBlob: Blob;
-  alignment: ElevenLabsResponse["alignment"];
-  normalizedAlignment: ElevenLabsResponse["normalized_alignment"];
+	duration: number;
+	speakers: Speaker[];
+	script: Script;
+	onComplete: (audioUrl: string) => void;
 }
 
 export function AdGeneration({
-  duration,
-  speakers,
-  script,
-  onComplete,
+	duration,
+	speakers,
+	script,
+	onComplete,
 }: AdGenerationProps) {
-  const router = useRouter();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const [hasConfirmed, setHasConfirmed] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const totalLines = script.lines.length;
-  const { setVoiceLines } = useVoiceLines();
+	const router = useRouter();
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [progress, setProgress] = useState(0);
+	const [error, setError] = useState<string | null>(null);
+	const totalLines = script.lines.length;
+	const { setVoiceLines } = useVoiceLines();
+	const [generatedTitle, setGeneratedTitle] = useState<string>("");
 
-  async function generateVoiceLine(
-    text: string,
-    voiceId: string,
-    role: string
-  ): Promise<VoiceLineData> {
-    // First check if we have this voice line cached
-    const cachedLine = getCachedVoiceLine(text, role);
+	// Use a ref to ensure the generate logic runs only once
+	const hasGeneratedRef = useRef(false);
 
-    let response: ElevenLabsResponse;
+	useEffect(() => {
+		// If we've already started generation, exit early
+		if (hasGeneratedRef.current) return;
+		hasGeneratedRef.current = true;
 
-    if (cachedLine) {
-      console.log("Using cached voice line for:", text);
-      response = cachedLine.response;
-    } else {
-      console.log("Generating new voice line for:", text);
-      response = (await client.textToSpeech.convertWithTimestamps(voiceId, {
-        output_format: "mp3_44100_128",
-        text: text,
-        model_id: "eleven_multilingual_v2",
-      })) as ElevenLabsResponse;
+		let mounted = true;
 
-      // Cache the new voice line
-      await cacheVoiceLine({
-        text,
-        role,
-        voiceId,
-        response,
-      });
-    }
+		const generate = async () => {
+			if (isGenerating || !mounted) return;
+			setIsGenerating(true);
+			setProgress(0);
+			setError(null);
 
-    // Convert base64 to blob
-    const base64Data = response.audio_base64;
-    const binaryData = atob(base64Data);
-    const arrayBuffer = new ArrayBuffer(binaryData.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
+			try {
+				// Generate title first
+				const titleResponse = await fetch("/api/generate-title", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ script }),
+				});
 
-    for (let i = 0; i < binaryData.length; i++) {
-      uint8Array[i] = binaryData.charCodeAt(i);
-    }
+				if (!titleResponse.ok) {
+					throw new Error("Failed to generate title");
+				}
 
-    return {
-      audioBlob: new Blob([uint8Array], { type: "audio/mp3" }),
-      alignment: response.alignment,
-      normalizedAlignment: response.normalized_alignment,
-    };
-  }
+				const { title } = await titleResponse.json();
+				console.log("Generated title:", title);
+				setGeneratedTitle(title);
 
-  async function generateAd() {
-    setIsGenerating(true);
-    setProgress(0);
-    setIsReady(false);
-    setHasConfirmed(false);
-    const voiceLinesData: CachedVoiceLine[] = [];
+				const auth = getAuth();
+				const user = auth.currentUser;
 
-    try {
-      // Generate audio for each line
-      for (let i = 0; i < script.lines.length; i++) {
-        const voiceLine = script.lines[i];
-        const voiceId =
-          PREDEFINED_SPEAKERS[
-            voiceLine.role as keyof typeof PREDEFINED_SPEAKERS
-          ].voiceId;
+				if (!user) {
+					throw new Error("User not authenticated");
+				}
 
-        if (!voiceId) {
-          console.warn(`No voice ID found for role: ${voiceLine.role}`);
-          continue;
-        }
+				const token = await user.getIdToken();
 
-        // Check cache or generate new voice line
-        const cachedLine = getCachedVoiceLine(voiceLine.line, voiceLine.role);
-        let response: ElevenLabsResponse;
+				const generatedVoiceLines: ElevenLabsVoiceResponse[] = [];
+				// Generate audio for each line
+				for (let i = 0; i < script.lines.length; i++) {
+					const voiceLine = script.lines[i];
 
-        if (cachedLine) {
-          console.log("Using cached voice line for:", voiceLine.line);
-          response = cachedLine.response;
-        } else {
-          console.log("Generating new voice line for:", voiceLine.line);
-          response = (await client.textToSpeech.convertWithTimestamps(voiceId, {
-            output_format: "mp3_44100_128",
-            text: voiceLine.line,
-            model_id: "eleven_multilingual_v2",
-          })) as ElevenLabsResponse;
+					// if the line is empty or only contains whitespaces, skip it
+					if (!voiceLine.line.trim()) {
+						continue;
+					}
 
-          // Cache the new voice line
-          await cacheVoiceLine({
-            text: voiceLine.line,
-            role: voiceLine.role,
-            voiceId,
-            response,
-          });
-        }
+					const response = await fetch("/api/generate-voice", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							text: voiceLine.line,
+							role: voiceLine.role,
+						}),
+					});
 
-        voiceLinesData.push({
-          text: voiceLine.line,
-          role: voiceLine.role,
-          voiceId,
-          response,
-        });
+					if (!response.ok) {
+						throw new Error(
+							`Failed to generate voice line: ${await response.text()}`
+						);
+					}
 
-        if (i < script.lines.length - 1) {
-          await sleep(1000);
-        }
+					const data: ElevenLabsVoiceResponse = await response.json();
+					generatedVoiceLines.push(data);
 
-        setProgress(((i + 1) / totalLines) * 100);
-      }
+					setProgress(((i + 1) / totalLines) * 100);
+				}
 
-      // Instead of using router.push with query params, store the data
-      setVoiceLines(voiceLinesData);
+				// Store the recording data through our API
+				const storeResponse = await fetch("/api/store-recording", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({
+						voiceLines: generatedVoiceLines,
+						duration: duration,
+						speakers: speakers,
+						script: script,
+						title: title,
+					}),
+				});
 
-      // Navigate to the next page without query params
-      const currentPath = window.location.pathname;
-      router.push(currentPath + "/playback");
-    } catch (error) {
-      console.error("Error generating ad:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  }
+				if (!storeResponse.ok) {
+					const errorData = await storeResponse.json();
+					throw new Error(
+						errorData.error || "Failed to store recording data"
+					);
+				}
 
-  // Handle audio element loading and errors
-  useEffect(() => {
-    if (audioRef.current && audioUrl) {
-      const audio = audioRef.current;
+				const storedRecording: StoredRecording & { id: string } =
+					await storeResponse.json();
 
-      const handleCanPlay = () => {
-        if (audio.duration > 0) {
-          // Only set ready if duration is valid
-          setIsReady(true);
-        }
-      };
+				// Store in context for immediate use
+				setVoiceLines(storedRecording.voiceLines);
 
-      const handleLoadedMetadata = () => {
-        if (audio.duration > 0) {
-          // Double check duration after metadata loads
-          setIsReady(true);
-        }
-      };
+				// Navigate to the playback page
+				router.push(`/studio/playback?id=${storedRecording.id}`);
+			} catch (error: unknown) {
+				if (mounted) {
+					setError(
+						error instanceof Error
+							? error.message
+							: "An unknown error occurred"
+					);
+					setIsGenerating(false);
+					console.error("Error generating ad:", error);
+				}
+			}
+		};
 
-      const handleError = (e: ErrorEvent) => {
-        console.error("Audio playback error:", e);
-        setIsReady(false);
-      };
+		generate();
 
-      audio.addEventListener("canplay", handleCanPlay);
-      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.addEventListener("error", handleError as EventListener);
+		return () => {
+			mounted = false;
+			setIsGenerating(false);
+			setProgress(0);
+		};
+	}, []); // Keep the empty dependency array
 
-      // Load the audio
-      audio.load();
+	return (
+		<Card className="p-6 bg-blackLighter border border-blackLighter">
+			<div className="flex flex-col items-center justify-center space-y-4">
+				<Loader2
+					className={`w-8 h-8 ${isGenerating ? "animate-spin" : ""}`}
+				/>
+				<div className="text-center">
+					<h3 className="text-lg font-medium">Generating Audio</h3>
+					<p className="text-sm text-gray-500">
+						{isGenerating
+							? `Generating voice lines... ${Math.round(
+									progress
+							  )}%`
+							: "Generation complete!"}
+					</p>
+					{error && (
+						<p className="text-sm text-red-500 mt-2">{error}</p>
+					)}
+				</div>
 
-      return () => {
-        audio.removeEventListener("canplay", handleCanPlay);
-        audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-        audio.removeEventListener("error", handleError as EventListener);
-      };
-    }
-  }, [audioUrl]);
-
-  // Cleanup effect
-  useEffect(() => {
-    generateAd();
-
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-      setIsGenerating(false);
-      setProgress(0);
-      setIsReady(false);
-    };
-  }, []);
-
-  return (
-    <Card className="p-6">
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <Loader2 className={`w-8 h-8 ${isGenerating ? "animate-spin" : ""}`} />
-        <div className="text-center">
-          <h3 className="text-lg font-medium">Generating Audio</h3>
-          <p className="text-sm text-gray-500">
-            {isGenerating
-              ? `Generating voice lines... ${Math.round(progress)}%`
-              : "Generation complete!"}
-          </p>
-        </div>
-
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    </Card>
-  );
+				<div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+					<div
+						className="h-full bg-primary transition-all duration-300"
+						style={{ width: `${progress}%` }}
+					/>
+				</div>
+			</div>
+		</Card>
+	);
 }

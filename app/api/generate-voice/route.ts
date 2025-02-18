@@ -1,44 +1,56 @@
 import { NextResponse } from "next/server";
+import { ElevenLabsClient } from "elevenlabs";
+import { PREDEFINED_SPEAKERS } from "@/components/recording/speakers-info";
+import { ElevenLabsVoiceResponse } from "@/types/voice-types";
+
+// Initialize ElevenLabs client with API key from environment variable
+const client = new ElevenLabsClient({
+	apiKey: process.env.ELEVENLABS_API_KEY,
+});
 
 export async function POST(request: Request) {
-  const { text, voiceId } = await request.json();
+	try {
+		const { text, role } = await request.json();
 
-  try {
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "xi-api-key": "sk_b88e7fbea803cfd374bd9924d31d5141b5503f2c5f290c37",
-        },
-        body: JSON.stringify({
-          text,
-          model_id: "eleven_monolingual_v1",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.5,
-          },
-        }),
-      }
-    );
+		if (!text || !role) {
+			return NextResponse.json(
+				{ error: "Missing required fields" },
+				{ status: 400 }
+			);
+		}
 
-    if (!response.ok) {
-      throw new Error("Failed to generate voice");
-    }
+		// Get voice ID for the role
+		const voiceId =
+			PREDEFINED_SPEAKERS[role as keyof typeof PREDEFINED_SPEAKERS]
+				?.voiceId;
+		if (!voiceId) {
+			return NextResponse.json(
+				{ error: `No voice ID found for role: ${role}` },
+				{ status: 400 }
+			);
+		}
 
-    const audioBuffer = await response.arrayBuffer();
+		// Generate new voice line with type checking
+		const response = (await client.textToSpeech.convertWithTimestamps(
+			voiceId,
+			{
+				output_format: "mp3_44100_128",
+				text: text,
+				model_id: "eleven_multilingual_v2",
+			}
+		)) as ElevenLabsVoiceResponse;
 
-    return new NextResponse(audioBuffer, {
-      headers: {
-        "Content-Type": "audio/mpeg",
-      },
-    });
-  } catch (error) {
-    console.error("Error generating voice:", error);
-    return NextResponse.json(
-      { error: "Failed to generate voice" },
-      { status: 500 }
-    );
-  }
+		// Verify response has required properties
+		if (!response?.audio_base64) {
+			throw new Error("Invalid response from ElevenLabs API");
+		}
+
+		return NextResponse.json(response);
+	} catch (error) {
+		console.error("Error generating voice:", error);
+		return NextResponse.json(
+			{ error: "Failed to generate voice line" },
+			{ status: 500 }
+		);
+	}
 }

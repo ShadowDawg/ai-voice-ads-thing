@@ -18,6 +18,7 @@ export default {
         floralWhite: "#f6F3E9",
         blackLight: "#131213",
         jet: "#292929",
+        blackLighter: "#282828",
         resedaGreen: "#7B896E",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

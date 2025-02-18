@@ -19,6 +19,7 @@ interface SpeakersSetupProps {
 
 export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
   const [error, setError] = useState<string | null>(null);
+  const [selectedSpeaker, setSelectedSpeaker] = useState<string>("");
 
   // If no speakers are defined, add a default narrator
   useEffect(() => {
@@ -61,6 +62,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 
     onChange([...speakers, newSpeaker]);
     setError(null);
+    setSelectedSpeaker(""); // Reset the select value after adding a speaker
   };
 
   // Get available roles (roles that haven't been added yet)
@@ -76,7 +78,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-8">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold text-white tracking-tight">
           Configure Speakers
@@ -126,7 +128,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
       {/* Speaker selection with color bubbles in the dropdown */}
       {availableRoles.length > 0 && (
         <div className="flex gap-4 mt-4">
-          <Select onValueChange={addSpeaker}>
+          <Select value={selectedSpeaker} onValueChange={addSpeaker}>
             <SelectTrigger className="flex-1 bg-blackLight border-[#404040] text-white hover:border-cornsilk focus:border-cornsilk/80 focus:ring-cornsilk/10">
               <SelectValue placeholder="Select a speaker to add" />
             </SelectTrigger>

@@ -14,7 +14,7 @@ interface DurationSelectorProps {
 
 export function DurationSelector({ value, onChange }: DurationSelectorProps) {
   return (
-    <div className="space-y-6">
+    <div className="p-8">
       <div className="space-y-2">
         <h2 className="text-3xl text-white tracking-tight">
           Select Ad Duration

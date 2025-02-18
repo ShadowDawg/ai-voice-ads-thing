@@ -1,36 +1,38 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { CachedVoiceLine } from "../components/recording/voicelines-cache";
+import { VoiceLineForPlayback } from "../components/recording/voicelines-cache";
 
 interface VoiceLinesContextType {
-  voiceLines: CachedVoiceLine[];
-  setVoiceLines: (lines: CachedVoiceLine[]) => void;
+	voiceLines: VoiceLineForPlayback[];
+	setVoiceLines: (lines: VoiceLineForPlayback[]) => void;
 }
 
 export const VoiceLinesContext = createContext<VoiceLinesContextType>({
-  voiceLines: [],
-  setVoiceLines: () => {},
+	voiceLines: [],
+	setVoiceLines: () => {},
 });
 
 export function VoiceLinesProvider({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  const [voiceLines, setVoiceLines] = useState<CachedVoiceLine[]>([]);
+	const [voiceLines, setVoiceLines] = useState<VoiceLineForPlayback[]>([]);
 
-  return (
-    <VoiceLinesContext.Provider value={{ voiceLines, setVoiceLines }}>
-      {children}
-    </VoiceLinesContext.Provider>
-  );
+	return (
+		<VoiceLinesContext.Provider value={{ voiceLines, setVoiceLines }}>
+			{children}
+		</VoiceLinesContext.Provider>
+	);
 }
 
 export function useVoiceLines() {
-  const context = useContext(VoiceLinesContext);
-  if (undefined === context) {
-    throw new Error("useVoiceLines must be used within a VoiceLinesProvider");
-  }
-  return context;
+	const context = useContext(VoiceLinesContext);
+	if (undefined === context) {
+		throw new Error(
+			"useVoiceLines must be used within a VoiceLinesProvider"
+		);
+	}
+	return context;
 }
