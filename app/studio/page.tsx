@@ -1,85 +1,176 @@
-import { StudioHeader } from "@/components/studio/StudioHeader";
-import { StudioContent } from "@/components/studio/StudioContent";
-import { adminAuth } from "@/lib/firebase/admin";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { getFirestore } from "firebase-admin/firestore";
-import { StoredRecording } from "@/types/voice-types";
-import Link from "next/link";
+"use client";
 
-// Add this metadata export to disable caching
-export const dynamic = "force-dynamic";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { DurationSelector } from "@/components/recording/duration-selector";
+import { SpeakersSetup } from "@/components/recording/speakers-setup";
+import { ScriptGeneration } from "@/components/recording/script-generation";
+import { Script } from "@/components/recording/models";
+import { AdGeneration } from "@/components/recording/ad-generation";
+import { useRouter } from "next/navigation";
+import { Speaker } from "@/components/recording/speakers-info";
+import { dm_serif } from "@/lib/fonts/fonts";
+// import { ScriptGeneration } from "@/components/recording/script-generation";
+// import { AdGeneration } from "@/components/recording/ad-generation";
+// import { Playback } from "@/components/recording/playback";
 
-// Server-side authentication check
-export default async function Studio() {
-	const sessionCookie = (await cookies()).get("session")?.value;
+type Step = "duration" | "speakers" | "script" | "generation" | "playback";
 
-	if (!sessionCookie) {
-		redirect("/");
-	}
+export default function NewRecordingPage() {
+	const router = useRouter();
+	const [currentStep, setCurrentStep] = useState<Step>("duration");
+	const [recordingData, setRecordingData] = useState<{
+		duration: number;
+		speakers: Speaker[];
+		script: Script;
+		audioUrl: string;
+	}>({
+		duration: 0,
+		speakers: [],
+		script: { lines: [] },
+		audioUrl: "",
+	});
 
-	try {
-		// Verify the session cookie and get the user
-		const decodedClaims = await adminAuth.verifySessionCookie(
-			sessionCookie,
-			true
-		);
-		if (!decodedClaims) {
-			redirect("/");
+	const steps: Step[] = [
+		"duration",
+		"speakers",
+		"script",
+		"generation",
+		"playback",
+	];
+
+	const updateRecordingData = (data: Partial<typeof recordingData>) => {
+		setRecordingData((prev) => ({ ...prev, ...data }));
+	};
+
+	const goToNextStep = () => {
+		const currentIndex = steps.indexOf(currentStep);
+		console.log(recordingData);
+		if (currentIndex < steps.length - 1) {
+			setCurrentStep(steps[currentIndex + 1]);
 		}
+	};
 
-		// Fetch user's recordings from Firestore
-		const db = getFirestore();
-		const recordingsSnapshot = await db
-			.collection("users")
-			.doc(decodedClaims.uid)
-			.collection("stored_recordings")
-			.orderBy("createdAt", "desc")
-			.get();
+	const goToPreviousStep = () => {
+		const currentIndex = steps.indexOf(currentStep);
+		if (currentIndex > 0) {
+			setCurrentStep(steps[currentIndex - 1]);
+		}
+	};
 
-		const recordings: StoredRecording[] = recordingsSnapshot.docs.map(
-			(doc) =>
-				({
-					...doc.data(),
-					createdAt: doc.data().createdAt.toDate(),
-				} as StoredRecording)
-		);
-
-		return (
-			<div className="min-h-screen bg-black p-4">
-				<div className="max-w-7xl mx-auto">
-					<StudioHeader />
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-						{recordings.map((recording, index) => (
-							<Link
-								key={index}
-								href={`/studio/playback?id=${recordingsSnapshot.docs[index].id}`}
-								className="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition-colors cursor-pointer block"
-							>
-								<h3 className="text-xl font-semibold text-white mb-2">
-									{recording.title}
-								</h3>
-								<div className="text-gray-400 text-sm">
-									<p>
-										Duration:{" "}
-										{Math.round(recording.duration)}s
-									</p>
-									<p>
-										Created:{" "}
-										{recording.createdAt.toLocaleDateString()}
-									</p>
-								</div>
-							</Link>
-						))}
-					</div>
-					<div className="mt-8">
-						<StudioContent />
-					</div>
+	return (
+		<div className="min-h-screen bg-black">
+			<div className="max-w-7xl mx-auto">
+				<div className="p-8">
+					<h1
+						className={`${dm_serif.className} text-vivid text-5xl font-bold`}
+					>
+						Addie Studio
+					</h1>
 				</div>
 			</div>
-		);
-	} catch (error) {
-		// If there's an error verifying the session cookie, redirect to home
-		redirect("/");
-	}
+
+			<div className="flex justify-center">
+				<Card className="p-2 w-full max-w-4xl mx-auto bg-black border-black shadow-2xl">
+					{/* Back to Studio button */}
+					<button
+						onClick={() => router.back()}
+						className="text-white hover:text-cornsilk mb-6 transition-all"
+					>
+						{"< Home"}
+					</button>
+
+					{/* Progress indicator */}
+					<div className="mb-10">
+						<div className="flex items-center justify-between">
+							{steps.map((step, index) => (
+								<div key={step} className="flex items-center">
+									<div
+										className={`w-7 h-7 rounded-full ${
+											steps.indexOf(currentStep) >= index
+												? "bg-cornsilk text-black font-medium"
+												: "bg-[#282828] text-[#B3B3B3]"
+										} flex items-center justify-center text-sm transition-all duration-300 hover:scale-110`}
+									>
+										{index + 1}
+									</div>
+									{index < steps.length - 1 && (
+										<div
+											className={`w-24 h-[2px] mx-2 ${
+												steps.indexOf(currentStep) >
+												index
+													? "bg-cornsilk"
+													: "bg-[#282828]"
+											}`}
+										/>
+									)}
+								</div>
+							))}
+						</div>
+					</div>
+
+					{/* Step content */}
+					<div className="mb-10 bg-blackLight p-6 rounded-lg">
+						{currentStep === "duration" && (
+							<DurationSelector
+								value={recordingData.duration}
+								onChange={(duration) =>
+									updateRecordingData({ duration })
+								}
+							/>
+						)}
+						{currentStep === "speakers" && (
+							<SpeakersSetup
+								speakers={recordingData.speakers}
+								onChange={(speakers) =>
+									updateRecordingData({ speakers })
+								}
+							/>
+						)}
+						{currentStep === "script" && (
+							<ScriptGeneration
+								duration={recordingData.duration}
+								speakers={recordingData.speakers}
+								script={recordingData.script}
+								onChange={(script) =>
+									updateRecordingData({ script })
+								}
+							/>
+						)}
+						{currentStep === "generation" && (
+							<AdGeneration
+								duration={recordingData.duration}
+								speakers={recordingData.speakers}
+								script={recordingData.script}
+								onComplete={(audioUrl) => {
+									updateRecordingData({ audioUrl });
+									goToNextStep();
+								}}
+							/>
+						)}
+					</div>
+
+					{/* Navigation buttons */}
+					<div className="flex justify-between mb-10">
+						<Button
+							variant="outline"
+							onClick={goToPreviousStep}
+							disabled={currentStep === "duration"}
+							className="border-[#282828] text-white hover:bg-[#282828] hover:text-white transition-all bg-blackLight"
+						>
+							Back
+						</Button>
+						<Button
+							onClick={goToNextStep}
+							disabled={currentStep === "playback"}
+							className="bg-cornsilk text-black hover:bg-cornsilk/80 transition-all font-medium"
+						>
+							{currentStep === "generation" ? "Generate" : "Next"}
+						</Button>
+					</div>
+				</Card>
+			</div>
+		</div>
+	);
 }

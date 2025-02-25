@@ -107,6 +107,165 @@ export function AdGeneration({
 					setProgress(((i + 1) / totalLines) * 100);
 				}
 
+				// Calculate total duration of generated audio
+				const calculateTotalDuration = (
+					voiceLines: ElevenLabsVoiceResponse[]
+				): number => {
+					return voiceLines.reduce((total, line) => {
+						const lastCharEndTime =
+							line.alignment.character_end_times_seconds;
+						return (
+							total + lastCharEndTime[lastCharEndTime.length - 1]
+						);
+					}, 0);
+				};
+
+				const totalGeneratedDuration =
+					calculateTotalDuration(generatedVoiceLines);
+
+				// If generated audio is shorter than desired duration, add silence
+				if (totalGeneratedDuration < duration) {
+					const silenceDuration = duration - totalGeneratedDuration;
+
+					// Create silence audio using smaller chunks to prevent stack overflow
+					const sampleRate = 44100;
+					const channels = 1;
+					const chunkSize = 44100; // Process 1 second at a time
+					const totalSamples = Math.floor(
+						sampleRate * silenceDuration
+					);
+					const chunks = Math.ceil(totalSamples / chunkSize);
+
+					const silenceBase64 = await new Promise<string>(
+						(resolve) => {
+							const offlineContext = new OfflineAudioContext(
+								channels,
+								totalSamples,
+								sampleRate
+							);
+
+							// Create silence in chunks
+							for (let i = 0; i < chunks; i++) {
+								const source =
+									offlineContext.createBufferSource();
+								const currentChunkSize = Math.min(
+									chunkSize,
+									totalSamples - i * chunkSize
+								);
+
+								const chunkBuffer = offlineContext.createBuffer(
+									channels,
+									currentChunkSize,
+									sampleRate
+								);
+
+								source.buffer = chunkBuffer;
+								source.connect(offlineContext.destination);
+								source.start(i);
+							}
+
+							offlineContext
+								.startRendering()
+								.then((renderedBuffer) => {
+									// Convert to WAV more efficiently
+									const wav = new Int16Array(
+										renderedBuffer.length
+									);
+									const channelData =
+										renderedBuffer.getChannelData(0);
+
+									// Convert Float32 to Int16 directly
+									for (
+										let i = 0;
+										i < channelData.length;
+										i++
+									) {
+										const s = Math.max(
+											-1,
+											Math.min(1, channelData[i])
+										);
+										wav[i] =
+											s < 0 ? s * 0x8000 : s * 0x7fff;
+									}
+
+									// Create WAV header
+									const header = new ArrayBuffer(44);
+									const headerView = new DataView(header);
+
+									// WAV header (simplified)
+									writeString(headerView, 0, "RIFF");
+									headerView.setUint32(
+										4,
+										36 + wav.length * 2,
+										true
+									);
+									writeString(headerView, 8, "WAVE");
+									writeString(headerView, 12, "fmt ");
+									headerView.setUint32(16, 16, true);
+									headerView.setUint16(20, 1, true);
+									headerView.setUint16(22, 1, true);
+									headerView.setUint32(24, sampleRate, true);
+									headerView.setUint32(
+										28,
+										sampleRate * 2,
+										true
+									);
+									headerView.setUint16(32, 2, true);
+									headerView.setUint16(34, 16, true);
+									writeString(headerView, 36, "data");
+									headerView.setUint32(
+										40,
+										wav.length * 2,
+										true
+									);
+
+									// Combine header and data
+									const combinedArray = new Uint8Array(
+										header.byteLength + wav.length * 2
+									);
+									combinedArray.set(new Uint8Array(header));
+									combinedArray.set(
+										new Uint8Array(wav.buffer),
+										header.byteLength
+									);
+
+									// Use the helper function to convert the data to base64 in chunks
+									const base64 =
+										uint8ArrayToBase64(combinedArray);
+									resolve(base64);
+								});
+						}
+					);
+
+					// Add silence as the last voice line
+					generatedVoiceLines.push({
+						audio_base64: silenceBase64,
+						alignment: {
+							characters: [""],
+							character_start_times_seconds: [
+								totalGeneratedDuration,
+							],
+							character_end_times_seconds: [duration],
+						},
+						normalized_alignment: {
+							characters: [""],
+							character_start_times_seconds: [
+								totalGeneratedDuration,
+							],
+							character_end_times_seconds: [duration],
+						},
+					});
+				}
+
+				console.log("Storing Response...");
+				console.log(script);
+
+				// Before storing, we need to prepare the voice lines without the silence
+				const voiceLinesForStorage = generatedVoiceLines.slice(
+					0,
+					script.lines.length
+				);
+
 				// Store the recording data through our API
 				const storeResponse = await fetch("/api/store-recording", {
 					method: "POST",
@@ -115,7 +274,13 @@ export function AdGeneration({
 						Authorization: `Bearer ${token}`,
 					},
 					body: JSON.stringify({
-						voiceLines: generatedVoiceLines,
+						voiceLines: voiceLinesForStorage,
+						silenceLine:
+							totalGeneratedDuration < duration
+								? generatedVoiceLines[
+										generatedVoiceLines.length - 1
+								  ]
+								: null,
 						duration: duration,
 						speakers: speakers,
 						script: script,
@@ -189,4 +354,22 @@ export function AdGeneration({
 			</div>
 		</Card>
 	);
+}
+
+function uint8ArrayToBase64(u8a: Uint8Array): string {
+	const chunkSize = 0x8000; // 32768 bytes per chunk
+	let binary = "";
+	for (let i = 0; i < u8a.length; i += chunkSize) {
+		binary += String.fromCharCode.apply(
+			null,
+			Array.from(u8a.subarray(i, i + chunkSize))
+		);
+	}
+	return btoa(binary);
+}
+
+function writeString(view: DataView, offset: number, string: string): void {
+	for (let i = 0; i < string.length; i++) {
+		view.setUint8(offset + i, string.charCodeAt(i));
+	}
 }

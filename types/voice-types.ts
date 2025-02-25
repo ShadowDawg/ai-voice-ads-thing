@@ -21,6 +21,7 @@ export interface VoiceLineForPlayback {
 // structure of the stored recording in firebase
 export interface StoredRecording {
 	voiceLines: VoiceLineForPlayback[];
+	silenceLine?: ElevenLabsVoiceResponse | null;
 	duration: number;
 	createdAt: Date;
 	title: string;

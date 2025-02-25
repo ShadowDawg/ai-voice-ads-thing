@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Download } from "lucide-react";
@@ -20,7 +20,7 @@ export default function PlaybackPage() {
 		null
 	);
 	const [isPlaying, setIsPlaying] = useState(false);
-	const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [totalDuration, setTotalDuration] = useState(0);
 	const [individualDurations, setIndividualDurations] = useState<number[]>(
@@ -29,49 +29,86 @@ export default function PlaybackPage() {
 	const [overallTime, setOverallTime] = useState(0);
 
 	useEffect(() => {
-		async function fetchRecording() {
-			try {
-				const auth = getAuth();
-				const user = auth.currentUser;
+		return () => {
+			if (audioRef.current) {
+				audioRef.current.pause();
+				audioRef.current = null;
+			}
+		};
+	}, []);
 
-				if (!user) {
-					throw new Error("User not authenticated");
-				}
-
-				if (!recordingId) {
-					throw new Error("No recording ID provided");
-				}
-
-				const db = getFirestore();
-				const recordingRef = doc(
-					db,
-					"users",
-					user.uid,
-					"stored_recordings",
-					recordingId
-				);
-				const recordingSnap = await getDoc(recordingRef);
-
-				if (!recordingSnap.exists()) {
-					throw new Error("Recording not found");
-				}
-
-				const recordingData = recordingSnap.data() as StoredRecording;
-				setVoiceLines(recordingData.voiceLines);
-				setLoading(false);
-			} catch (err) {
-				console.error("Error fetching recording:", err);
-				setError(
-					err instanceof Error
-						? err.message
-						: "Failed to load recording"
-				);
+	useEffect(() => {
+		const auth = getAuth();
+		// Listen for authentication state changes
+		const unsubscribe = auth.onAuthStateChanged((user) => {
+			if (user) {
+				fetchRecording();
+			} else {
+				setError("User not authenticated");
 				setLoading(false);
 			}
-		}
-
-		fetchRecording();
+		});
+		return () => unsubscribe();
 	}, [recordingId]);
+
+	async function fetchRecording() {
+		try {
+			if (!recordingId) {
+				throw new Error("No recording ID provided");
+			}
+			const auth = getAuth(); // The user check is now handled in onAuthStateChanged
+			const user = auth.currentUser;
+			if (!user) {
+				throw new Error("User not authenticated");
+			}
+			const db = getFirestore();
+			const recordingRef = doc(
+				db,
+				"users",
+				user.uid,
+				"stored_recordings",
+				recordingId
+			);
+			const recordingSnap = await getDoc(recordingRef);
+
+			if (!recordingSnap.exists()) {
+				throw new Error("Recording not found");
+			}
+
+			// Get the stored recording data
+			const recordingData = recordingSnap.data() as StoredRecording;
+
+			// Append the silence voice line to the voiceLines if it exists.
+			let finalVoiceLines = recordingData.voiceLines;
+			if (recordingData.silenceLine) {
+				finalVoiceLines = [
+					...recordingData.voiceLines,
+					{
+						text: "Silence", // Label for the UI
+						role: "silence",
+						voiceId: "",
+						response: {
+							audio_base64:
+								recordingData.silenceLine.audio_base64,
+							alignment: recordingData.silenceLine.alignment,
+							normalized_alignment:
+								recordingData.silenceLine.normalized_alignment,
+						},
+					} as VoiceLineForPlayback,
+				];
+			}
+
+			// Update state with the complete array (including silence)
+			setVoiceLines(finalVoiceLines);
+			setLoading(false);
+		} catch (err) {
+			console.error("Error fetching recording:", err);
+			setError(
+				err instanceof Error ? err.message : "Failed to load recording"
+			);
+			setLoading(false);
+		}
+	}
 
 	const getCurrentSpeakerColor = () => {
 		if (currentlyPlaying === null) return "#1a1a1a"; // Default dark background
@@ -124,8 +161,9 @@ export default function PlaybackPage() {
 	};
 
 	const playVoiceLine = (index: number) => {
-		if (audio) {
-			audio.pause();
+		// Stop any currently playing audio
+		if (audioRef.current) {
+			audioRef.current.pause();
 		}
 
 		// Store the current overall time before transitioning
@@ -147,7 +185,8 @@ export default function PlaybackPage() {
 			);
 		});
 
-		setAudio(newAudio);
+		// Instead of updating state, we use the ref.
+		audioRef.current = newAudio;
 		setCurrentlyPlaying(index);
 		setIsPlaying(true);
 
@@ -170,11 +209,11 @@ export default function PlaybackPage() {
 
 	const togglePlayPause = () => {
 		if (isPlaying) {
-			audio?.pause();
+			audioRef.current?.pause();
 			setIsPlaying(false);
 		} else {
 			if (currentlyPlaying !== null) {
-				audio?.play();
+				audioRef.current?.play();
 			} else {
 				playVoiceLine(0);
 			}
@@ -275,24 +314,26 @@ export default function PlaybackPage() {
 					{/* Voice Lines */}
 					<div className="container mx-auto p-6 flex-1 flex items-center">
 						<div className="space-y-6 w-full max-w-2xl mx-auto">
-							{voiceLines.map((line, index) => (
-								<div
-									key={index}
-									className={`transition-all duration-300 ${
-										currentlyPlaying === index
-											? "scale-105 opacity-100"
-											: "opacity-50 hover:opacity-80"
-									}`}
-									onClick={() => playVoiceLine(index)}
-								>
-									<p className="text-sm mb-1 opacity-80">
-										{line.role}
-									</p>
-									<p className="text-3xl font-medium cursor-pointer">
-										{line.text}
-									</p>
-								</div>
-							))}
+							{voiceLines
+								.filter((line) => line.role !== "silence") // Filter out silence lines from display
+								.map((line, index) => (
+									<div
+										key={index}
+										className={`transition-all duration-300 ${
+											currentlyPlaying === index
+												? "scale-105 opacity-100"
+												: "opacity-50 hover:opacity-80"
+										}`}
+										onClick={() => playVoiceLine(index)}
+									>
+										<p className="text-sm mb-1 opacity-80">
+											{line.role}
+										</p>
+										<p className="text-3xl font-medium cursor-pointer">
+											{line.text}
+										</p>
+									</div>
+								))}
 						</div>
 					</div>
 

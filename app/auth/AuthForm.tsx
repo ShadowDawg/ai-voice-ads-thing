@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createOrUpdateUser } from "@/lib/services/userService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
+import { dm_sans } from "@/lib/fonts/fonts";
 
 // Define the form schema
 const signUpSchema = z.object({
@@ -28,9 +29,17 @@ const signUpSchema = z.object({
 type SignUpForm = z.infer<typeof signUpSchema>;
 
 export default function AuthForm() {
-	const [isSignUp, setIsSignUp] = useState(false);
+	const [isSignUp, setIsSignUp] = useState(true);
 	const router = useRouter();
-	const { signInWithGoogle, loading } = useAuth();
+	const { user, signInWithGoogle, loading } = useAuth();
+
+	// Client-side redirect if already signed in.
+	// Note: Always rely on the secure, server-side cookie check for authentication.
+	useEffect(() => {
+		if (!loading && user) {
+			router.push("/home");
+		}
+	}, [user, loading, router]);
 
 	// Initialize form
 	const form = useForm<SignUpForm>({
@@ -65,7 +74,7 @@ export default function AuthForm() {
 			}
 
 			// Only redirect after the session is set
-			router.push("/studio");
+			router.push("/home");
 		} catch (error) {
 			toast({
 				variant: "destructive",
@@ -111,7 +120,7 @@ export default function AuthForm() {
 			}
 
 			// Only redirect after the session is set
-			router.push("/studio");
+			router.push("/home");
 		} catch (error) {
 			toast({
 				variant: "destructive",
@@ -123,26 +132,30 @@ export default function AuthForm() {
 
 	return (
 		<>
-			<div className="flex justify-center space-x-4">
-				<button
-					onClick={() => setIsSignUp(false)}
-					className={`px-4 py-2 rounded-md transition-colors ${
-						!isSignUp
-							? "bg-primary text-white"
-							: "text-muted-foreground hover:bg-gray-100"
-					}`}
-				>
-					Login
-				</button>
+			<div className="flex justify-center space-x-4 mb-8">
 				<button
 					onClick={() => setIsSignUp(true)}
-					className={`px-4 py-2 rounded-md transition-colors ${
+					className={`${
+						dm_sans.className
+					} px-6 py-2.5 rounded-xl transition-all ${
 						isSignUp
-							? "bg-primary text-white"
-							: "text-muted-foreground hover:bg-gray-100"
+							? "bg-vivid text-black font-medium"
+							: "text-gray-400 hover:text-cornsilk"
 					}`}
 				>
 					Sign Up
+				</button>
+				<button
+					onClick={() => setIsSignUp(false)}
+					className={`${
+						dm_sans.className
+					} px-6 py-2.5 rounded-xl transition-all ${
+						!isSignUp
+							? "bg-vivid text-black font-medium"
+							: "text-gray-400 hover:text-cornsilk"
+					}`}
+				>
+					Login
 				</button>
 			</div>
 
@@ -150,7 +163,7 @@ export default function AuthForm() {
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(handleGoogleSignUp)}
-						className="space-y-4"
+						className="space-y-6"
 					>
 						<FormField
 							control={form.control}
@@ -160,10 +173,11 @@ export default function AuthForm() {
 									<FormControl>
 										<Input
 											placeholder="First Name"
+											className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
 											{...field}
 										/>
 									</FormControl>
-									<FormMessage />
+									<FormMessage className="text-red-400" />
 								</FormItem>
 							)}
 						/>
@@ -175,19 +189,20 @@ export default function AuthForm() {
 									<FormControl>
 										<Input
 											placeholder="Last Name"
+											className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
 											{...field}
 										/>
 									</FormControl>
-									<FormMessage />
+									<FormMessage className="text-red-400" />
 								</FormItem>
 							)}
 						/>
 						<Button
 							type="submit"
-							className="w-full h-11 bg-white border border-gray-300 hover:bg-gray-50 text-eerieBlack"
+							className={`${dm_sans.className} w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors`}
 							disabled={loading}
 						>
-							<FcGoogle className="mr-2 h-5 w-5" />
+							<FcGoogle className="mr-3 h-5 w-5" />
 							Sign up with Google
 						</Button>
 					</form>
@@ -195,10 +210,10 @@ export default function AuthForm() {
 			) : (
 				<Button
 					onClick={handleGoogleLogin}
-					className="w-full h-11 bg-white border border-gray-300 hover:bg-gray-50 text-eerieBlack"
+					className={`${dm_sans.className} w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors`}
 					disabled={loading}
 				>
-					<FcGoogle className="mr-2 h-5 w-5" />
+					<FcGoogle className="mr-3 h-5 w-5" />
 					Login with Google
 				</Button>
 			)}

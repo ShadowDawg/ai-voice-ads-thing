@@ -1,9 +1,7 @@
 // app/page.tsx
 import { LandingAuth } from "@/components/auth/LandingAuth";
-import localFont from "next/font/local";
 import Link from "next/link";
-
-const andulka = localFont({ src: "../public/fonts/andulka.otf" });
+import { dm_serif, dm_sans } from "@/lib/fonts/fonts";
 
 export default function Home() {
 	return (
@@ -11,13 +9,17 @@ export default function Home() {
 			<main className="flex min-h-screen flex-col items-center justify-center">
 				<div className="container flex flex-col items-center text-center">
 					<h1
-						className={`${andulka.className} text-4xl font-bold sm:text-5xl md:text-8xl lg:text-9xl text-cornsilk tracking-normal`}
+						className={`${dm_serif.className} text-4xl sm:text-5xl md:text-8xl lg:text-9xl text-vivid tracking-normal`}
 					>
 						Addie
 					</h1>
-					<p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl text-eerieBlack">
-						Create beautiful voice ads for podcasts and radio in
-						minutes.
+					<p
+						className={`${dm_sans.className} max-w-[700px] text-2xl sm:text-2xl md:text-3xl lg:text-4xl text-sec/50`}
+					>
+						Create{" "}
+						<span className="text-sec">beautiful voice ads</span>{" "}
+						for podcasts and radio{" "}
+						<span className="text-sec">in minutes</span>
 					</p>
 					<Link
 						href="/auth"

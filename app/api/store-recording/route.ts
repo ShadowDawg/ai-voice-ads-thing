@@ -23,10 +23,12 @@ export async function POST(request: Request) {
 		const userId = decodedToken.uid;
 
 		// Get the recording data from the request
-		const { voiceLines, duration, speakers, script, title } =
+		const { voiceLines, silenceLine, duration, speakers, script, title } =
 			await request.json();
 
 		// Format the data according to StoredRecording type
+		console.log("In store recording...");
+		console.log(script);
 		const recordingData: StoredRecording = {
 			voiceLines: voiceLines.map(
 				(line: any, index: number): VoiceLineForPlayback => ({
@@ -40,6 +42,7 @@ export async function POST(request: Request) {
 					response: line,
 				})
 			),
+			silenceLine: silenceLine,
 			duration,
 			createdAt: new Date(),
 			title: title,
