@@ -1,12 +1,8 @@
 import { z } from "zod";
-
-export const VoiceLine = z.object({
-  role: z.string(),
-  line: z.string(),
-});
+import { VoiceLine } from "./speakers-info";
 
 export const Script = z.object({
-  lines: z.array(VoiceLine),
+	lines: z.array(VoiceLine),
 });
 
 // Add type inference

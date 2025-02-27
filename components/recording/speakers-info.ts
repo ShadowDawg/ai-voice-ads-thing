@@ -1,10 +1,12 @@
+import { z } from "zod";
+
 const PREDEFINED_SPEAKERS = {
 	Narrator: {
 		role: "Narrator",
 		voice: "male1",
 		color: "#4ECDC4", // Teal
-		voiceId: "UgBBYS2sOqTuMpoF3BR0",
-		example_file_path: "voice-examples/mark.mp3",
+		voiceId: "dXtC3XhB9GtPusIpNtQx",
+		example_file_path: "voice-examples/hale.mp3",
 	},
 	Customer: {
 		role: "Customer",
@@ -31,5 +33,15 @@ export interface Speaker {
 	voiceId: string;
 	example_file_path: string;
 }
+
+// Extract role values from PREDEFINED_SPEAKERS for the enum
+const speakerRoles = Object.values(PREDEFINED_SPEAKERS).map(
+	(speaker) => speaker.role
+) as [string, ...string[]];
+
+export const VoiceLine = z.object({
+	role: z.enum(speakerRoles),
+	line: z.string(),
+});
 
 export { PREDEFINED_SPEAKERS };

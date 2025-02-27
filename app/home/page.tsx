@@ -14,9 +14,13 @@ export const dynamic = "force-dynamic";
 
 // Server-side authentication check
 export default async function Studio() {
-	console.time("total-page-load");
+	// Use unique labels for each timing instance
+	const pageLoadLabel = `total-page-load-${Date.now()}`;
+	const sessionVerificationLabel = `session-verification-${Date.now()}`;
 
-	console.time("session-verification");
+	console.time(pageLoadLabel);
+	console.time(sessionVerificationLabel);
+
 	const sessionCookie = (await cookies()).get("session")?.value;
 	if (!sessionCookie) {
 		redirect("/");
@@ -27,13 +31,13 @@ export default async function Studio() {
 			sessionCookie,
 			true
 		);
-		console.timeEnd("session-verification");
+		console.timeEnd(sessionVerificationLabel);
 
 		if (!decodedClaims) {
 			redirect("/");
 		}
 
-		console.timeEnd("total-page-load");
+		console.timeEnd(pageLoadLabel);
 
 		return (
 			<div className="min-h-screen bg-black p-8">
@@ -58,6 +62,9 @@ export default async function Studio() {
 			</div>
 		);
 	} catch (error) {
+		// Make sure to end timers even in error case
+		console.timeEnd(sessionVerificationLabel);
+		console.timeEnd(pageLoadLabel);
 		// If there's an error verifying the session cookie, redirect to home
 		redirect("/");
 	}

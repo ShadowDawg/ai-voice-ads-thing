@@ -16,9 +16,7 @@ export async function POST(request: Request) {
 		} speaker(s).
     
 Speaker details:
-${speakers
-	.map((speaker: any) => `- ${speaker.role} (Voice: ${speaker.voice})`)
-	.join("\n")}
+${speakers.map((speaker: any) => `- ${speaker.role}`).join("\n")}
 
 Important constraints:
 - The script MUST NOT exceed ${duration * 2} words in total

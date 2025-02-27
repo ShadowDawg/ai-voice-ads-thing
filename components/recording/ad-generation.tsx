@@ -72,7 +72,9 @@ export function AdGeneration({
 					throw new Error("User not authenticated");
 				}
 
-				const token = await user.getIdToken();
+				// Force refresh the token to ensure it's not expired
+				const token = await user.getIdToken(true);
+				console.log("Token retrieved, length:", token.length);
 
 				const generatedVoiceLines: ElevenLabsVoiceResponse[] = [];
 				// Generate audio for each line
@@ -288,11 +290,21 @@ export function AdGeneration({
 					}),
 				});
 
+				// Add more detailed error handling
 				if (!storeResponse.ok) {
-					const errorData = await storeResponse.json();
-					throw new Error(
-						errorData.error || "Failed to store recording data"
-					);
+					const errorText = await storeResponse.text();
+					let errorMessage = "Failed to store recording data";
+
+					try {
+						const errorData = JSON.parse(errorText);
+						errorMessage = errorData.error || errorMessage;
+					} catch (e) {
+						// If parsing fails, use the raw text
+						errorMessage = errorText || errorMessage;
+					}
+
+					console.error("Store response error:", errorMessage);
+					throw new Error(errorMessage);
 				}
 
 				const storedRecording: StoredRecording & { id: string } =

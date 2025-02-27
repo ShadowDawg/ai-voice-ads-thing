@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase-admin/firestore";
+
 export interface ElevenLabsVoiceResponse {
 	audio_base64: string;
 	alignment: {
@@ -23,6 +25,6 @@ export interface StoredRecording {
 	voiceLines: VoiceLineForPlayback[];
 	silenceLine?: ElevenLabsVoiceResponse | null;
 	duration: number;
-	createdAt: Date;
+	createdAt: Timestamp;
 	title: string;
 }

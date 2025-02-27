@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { Speaker } from "./speakers-info";
 import { OpenAI } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { Script, VoiceLine } from "./models";
+import { dm_sans } from "@/lib/fonts/fonts";
 
 interface ScriptGenerationProps {
 	duration: number;
@@ -27,6 +28,33 @@ export function ScriptGeneration({
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isManualMode, setIsManualMode] = useState(false);
+	const [manualScript, setManualScript] = useState<Script>({ lines: [] });
+	const [aiScript, setAiScript] = useState<Script>({ lines: [] });
+
+	// Replace useState with useEffect for initialization
+	useEffect(() => {
+		if (script && script.lines) {
+			// Initialize both scripts with proper structure if they're empty
+			if (
+				manualScript.lines.length === 0 &&
+				aiScript.lines.length === 0
+			) {
+				setManualScript({ ...script, lines: [...script.lines] });
+				setAiScript({ ...script, lines: [...script.lines] });
+			}
+			// Otherwise only update the active script based on mode
+			else if (isManualMode) {
+				setManualScript({ ...script, lines: [...script.lines] });
+			} else {
+				setAiScript({ ...script, lines: [...script.lines] });
+			}
+		}
+	}, [
+		script,
+		isManualMode,
+		manualScript.lines.length,
+		aiScript.lines.length,
+	]);
 
 	// Estimate speaking duration (roughly 15 characters per second)
 	const estimateDuration = (text: string) => Math.ceil(text.length / 15);
@@ -82,17 +110,23 @@ export function ScriptGeneration({
 	};
 
 	const addNewLine = () => {
-		const newScript = { ...script };
-		newScript.lines = [
-			...(script?.lines || []),
-			{ role: speakers[0].role, line: "" },
-		];
+		const newScript = {
+			...manualScript,
+			lines: [
+				...(manualScript?.lines || []),
+				{ role: speakers[0].role, line: "" },
+			],
+		};
+		setManualScript(newScript);
 		onChange(newScript);
 	};
 
 	const removeLine = (index: number) => {
-		const newScript = { ...script };
-		newScript.lines = newScript.lines.filter((_, i) => i !== index);
+		const newScript = {
+			...manualScript,
+			lines: manualScript.lines.filter((_, i) => i !== index),
+		};
+		setManualScript(newScript);
 		onChange(newScript);
 	};
 
@@ -117,6 +151,7 @@ export function ScriptGeneration({
 			}
 
 			const data = await response.json();
+			setAiScript(data);
 			onChange(data);
 		} catch (error) {
 			console.error("Error generating script:", error);
@@ -126,8 +161,22 @@ export function ScriptGeneration({
 		}
 	};
 
+	// Handle mode switching
+	const switchToManualMode = () => {
+		setIsManualMode(true);
+		onChange(manualScript);
+	};
+
+	const switchToAIMode = () => {
+		setIsManualMode(false);
+		onChange(aiScript);
+	};
+
+	// Get the active script based on current mode
+	const activeScript = isManualMode ? manualScript : aiScript;
+
 	return (
-		<div className="p-8">
+		<div className={`p-8 `}>
 			<div className="space-y-2">
 				<h2 className="text-3xl font-bold text-white tracking-tight">
 					Create Your Script
@@ -139,20 +188,20 @@ export function ScriptGeneration({
 			</div>
 
 			{/* Specifications Display */}
-			<Card className="p-3 mt-6 bg-blackLighter border border-blackLighter">
+			<Card className="p-4 mt-6 bg-neutral-800 border border-neutral-700 rounded-xl">
 				<div className="flex items-center justify-between">
-					<h3 className="text-lg font-medium text-white">
+					<h3 className="text-lg font-medium text-cornsilk">
 						Project Details
 					</h3>
-					<div className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm">
+					<div className="px-3 py-1 rounded-full bg-cornsilk text-black text-sm font-medium">
 						{duration}s
 					</div>
 				</div>
-				<div className="flex flex-wrap gap-2 mt-2">
+				<div className="flex flex-wrap gap-2 mt-3">
 					{speakers.map((speaker) => (
 						<div
 							key={speaker.id}
-							className="px-3 py-1.5 rounded-lg bg-black text-sm flex items-center gap-2"
+							className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm flex items-center gap-2"
 						>
 							<span className="font-medium text-cornsilk">
 								{speaker.role}
@@ -163,73 +212,81 @@ export function ScriptGeneration({
 			</Card>
 
 			{/* Script Creation Mode Toggle */}
-			<div className="flex gap-4 mt-4">
+			<div className="flex gap-4 mt-6">
 				<Button
 					variant={isManualMode ? "default" : "outline"}
-					onClick={() => setIsManualMode(false)}
-					className={`flex-1 ${
-						!isManualMode ? "bg-cornsilk hover:bg-cornsilk/80" : ""
+					onClick={switchToAIMode}
+					className={`flex-1 h-12 rounded-xl transition-colors ${
+						!isManualMode
+							? "bg-cornsilk text-black font-medium"
+							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
 					}`}
 				>
 					AI Generated
 				</Button>
 				<Button
 					variant={isManualMode ? "outline" : "default"}
-					onClick={() => setIsManualMode(true)}
-					className={`flex-1 ${
-						isManualMode ? "bg-cornsilk hover:bg-cornsilk/80" : ""
+					onClick={switchToManualMode}
+					className={`flex-1 h-12 rounded-xl transition-colors ${
+						isManualMode
+							? "bg-cornsilk text-black font-medium"
+							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
 					}`}
 				>
 					Write Manually
 				</Button>
 			</div>
 
-			<div className="space-y-4 mt-4">
+			<div className="space-y-6 mt-6">
 				{isManualMode ? (
 					// Manual Script Creation
 					<div className="space-y-6">
 						<div className="flex items-center justify-between">
-							<h3 className="text-lg font-medium text-white">
+							<h3 className="text-lg font-medium text-cornsilk">
 								Your Script
 							</h3>
 							<div className="flex flex-col items-end gap-1">
-								<div className="text-sm text-muted-foreground">
+								<div className="text-sm text-gray-400">
 									Estimated Duration:{" "}
-									{getTotalDuration(script?.lines || [])}s /{" "}
-									{duration}s
+									{getTotalDuration(
+										manualScript?.lines || []
+									)}
+									s / {duration}s
 								</div>
 								<div
 									className={`text-sm ${
-										getTotalWords(script?.lines || []) >
-										wordLimit
-											? "text-red-500"
-											: "text-muted-foreground"
+										getTotalWords(
+											manualScript?.lines || []
+										) > wordLimit
+											? "text-red-400"
+											: "text-gray-400"
 									}`}
 								>
 									Word Count:{" "}
-									{getTotalWords(script?.lines || [])} /{" "}
+									{getTotalWords(manualScript?.lines || [])} /{" "}
 									{wordLimit}
 								</div>
 							</div>
 						</div>
 
 						<div className="space-y-6">
-							{script?.lines?.map(
+							{manualScript?.lines?.map(
 								(line: VoiceLine, index: number) => (
-									<div key={index} className="space-y-2">
-										<div className="flex items-center gap-2">
+									<div key={index} className="space-y-3">
+										<div className="flex items-center gap-3">
 											<select
 												value={line.role}
 												onChange={(e) => {
 													const newScript = {
-														...script,
+														...manualScript,
 													};
 													newScript.lines[
 														index
 													].role = e.target.value;
+													setManualScript(newScript);
 													onChange(newScript);
 												}}
-												className="bg-muted text-blackLight text-sm rounded-md px-2 py-1"
+												className="bg-neutral-800 text-cornsilk text-sm rounded-lg px-3 py-2 border border-neutral-700 focus:border-cornsilk focus:ring-cornsilk"
 											>
 												{speakers.map((speaker) => (
 													<option
@@ -240,14 +297,14 @@ export function ScriptGeneration({
 													</option>
 												))}
 											</select>
-											<div className="h-px flex-1 bg-muted" />
+											<div className="h-px flex-1 bg-neutral-700" />
 											<Button
 												variant="ghost"
 												size="sm"
 												onClick={() =>
 													removeLine(index)
 												}
-												className="text-muted-foreground hover:text-white"
+												className="text-gray-400 hover:text-cornsilk hover:bg-neutral-800 rounded-lg"
 											>
 												Remove
 											</Button>
@@ -263,18 +320,19 @@ export function ScriptGeneration({
 													)
 												) {
 													const newScript = {
-														...script,
+														...manualScript,
 													};
 													newScript.lines[
 														index
 													].line = newText;
+													setManualScript(newScript);
 													onChange(newScript);
 												}
 											}}
-											className="min-h-[80px] text-base leading-relaxed resize-none bg-muted/5 border-muted text-white"
+											className="min-h-[80px] text-base leading-relaxed resize-none bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
 											placeholder="Speaker's line..."
 										/>
-										<div className="flex justify-between text-xs text-muted-foreground">
+										<div className="flex justify-between text-xs text-gray-400">
 											<span>
 												Words:{" "}
 												{
@@ -300,11 +358,12 @@ export function ScriptGeneration({
 						<Button
 							onClick={addNewLine}
 							variant="outline"
-							className="w-full"
+							className="w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors"
 							disabled={
-								getTotalDuration(script?.lines || []) >=
+								getTotalDuration(manualScript?.lines || []) >=
 									duration ||
-								getTotalWords(script?.lines || []) >= wordLimit
+								getTotalWords(manualScript?.lines || []) >=
+									wordLimit
 							}
 						>
 							Add Line
@@ -314,7 +373,7 @@ export function ScriptGeneration({
 					// Script Generation
 					<div className="space-y-6">
 						<div>
-							<label className="block text-sm font-medium mb-3 text-muted-foreground">
+							<label className="block text-sm font-medium mb-3 text-gray-400">
 								Describe your advertisement (Script will be
 								limited to {wordLimit} words)
 							</label>
@@ -322,14 +381,14 @@ export function ScriptGeneration({
 								placeholder="A compelling story about..."
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
-								className="h-12 text-white"
+								className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl"
 							/>
 						</div>
 
 						<Button
 							onClick={generateScript}
 							disabled={isGenerating || !prompt.trim()}
-							className="w-full h-12 text-base font-medium"
+							className="w-full h-12 text-base font-medium rounded-xl bg-cornsilk text-black hover:bg-cornsilk/90 transition-colors"
 							variant="default"
 						>
 							{isGenerating ? (
@@ -342,44 +401,53 @@ export function ScriptGeneration({
 							)}
 						</Button>
 
-						{script && (
-							<div className="space-y-6 mt-8">
-								<h3 className="text-lg font-medium text-white">
-									Your Script
-								</h3>
-								<div className="space-y-6">
-									{script.lines.map(
-										(line: VoiceLine, index: number) => (
-											<div
-												key={index}
-												className="space-y-2"
-											>
-												<div className="flex items-center gap-2">
-													<span className="text-sm font-medium text-white">
-														{line.role}
-													</span>
-													<div className="h-px flex-1 bg-muted" />
+						{aiScript &&
+							aiScript.lines &&
+							aiScript.lines.length > 0 && (
+								<div className="space-y-6 mt-8">
+									<h3 className="text-lg font-medium text-cornsilk">
+										Your Script
+									</h3>
+									<div className="space-y-6">
+										{aiScript.lines.map(
+											(
+												line: VoiceLine,
+												index: number
+											) => (
+												<div
+													key={index}
+													className="space-y-3"
+												>
+													<div className="flex items-center gap-3">
+														<span className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm font-medium text-cornsilk">
+															{line.role}
+														</span>
+														<div className="h-px flex-1 bg-neutral-700" />
+													</div>
+													<Textarea
+														value={line.line}
+														onChange={(e) => {
+															const newScript = {
+																...aiScript,
+															};
+															newScript.lines[
+																index
+															].line =
+																e.target.value;
+															setAiScript(
+																newScript
+															);
+															onChange(newScript);
+														}}
+														className="min-h-[80px] text-base leading-relaxed resize-none bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
+														placeholder="Speaker's line..."
+													/>
 												</div>
-												<Textarea
-													value={line.line}
-													onChange={(e) => {
-														const newScript = {
-															...script,
-														};
-														newScript.lines[
-															index
-														].line = e.target.value;
-														onChange(newScript);
-													}}
-													className="min-h-[80px] text-base leading-relaxed resize-none bg-muted/5 border-muted text-white"
-													placeholder="Speaker's line..."
-												/>
-											</div>
-										)
-									)}
+											)
+										)}
+									</div>
 								</div>
-							</div>
-						)}
+							)}
 					</div>
 				)}
 			</div>
