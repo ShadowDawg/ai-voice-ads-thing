@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Download } from "lucide-react";
@@ -11,7 +11,7 @@ import { StoredRecording, VoiceLineForPlayback } from "@/types/voice-types";
 import { useSearchParams } from "next/navigation";
 import { dm_sans } from "@/lib/fonts/fonts";
 
-export default function PlaybackPage() {
+function PlaybackContent() {
 	const searchParams = useSearchParams();
 	const recordingId = searchParams.get("id");
 	const [loading, setLoading] = useState(true);
@@ -358,11 +358,7 @@ export default function PlaybackPage() {
 							{/* Controls and time */}
 							<div className="flex justify-between items-center">
 								<div className="flex-1">
-									{currentlyPlaying !== null && (
-										<div className="text-sm opacity-80">
-											{voiceLines[currentlyPlaying].role}
-										</div>
-									)}
+									{/* Role display removed from here */}
 								</div>
 
 								<div className="flex items-center gap-8">
@@ -393,6 +389,21 @@ export default function PlaybackPage() {
 				</>
 			)}
 		</div>
+	);
+}
+
+// Main component that wraps PlaybackContent with Suspense
+export default function PlaybackPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="min-h-screen flex items-center justify-center">
+					Loading...
+				</div>
+			}
+		>
+			<PlaybackContent />
+		</Suspense>
 	);
 }
 

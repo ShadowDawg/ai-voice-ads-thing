@@ -6,7 +6,6 @@ import { Speaker } from "./speakers-info";
 import { Card } from "../ui/card";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useVoiceLines } from "../../contexts/VoiceLinesContext";
 import { getAuth } from "firebase/auth";
 import { ElevenLabsVoiceResponse, StoredRecording } from "@/types/voice-types";
 
@@ -28,7 +27,6 @@ export function AdGeneration({
 	const [progress, setProgress] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 	const totalLines = script.lines.length;
-	const { setVoiceLines } = useVoiceLines();
 	const [generatedTitle, setGeneratedTitle] = useState<string>("");
 
 	// Use a ref to ensure the generate logic runs only once
@@ -312,9 +310,6 @@ export function AdGeneration({
 
 				const storedRecording: StoredRecording & { id: string } =
 					await storeResponse.json();
-
-				// Store in context for immediate use
-				setVoiceLines(storedRecording.voiceLines);
 
 				// Navigate to the playback page
 				router.push(`/studio/playback?id=${storedRecording.id}`);

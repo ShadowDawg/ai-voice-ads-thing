@@ -110,12 +110,22 @@ export function RecordingsList({ userId }: { userId: string }) {
 										{typeof recording.createdAt ===
 											"object" &&
 										recording.createdAt.toDate
+											? recording.createdAt
+													.toDate()
+													.toLocaleDateString()
+											: typeof recording.createdAt ===
+													"object" &&
+											  recording.createdAt.seconds
 											? new Date(
-													recording.createdAt.toDate()
-											  ).toLocaleDateString()
-											: new Date(
 													recording.createdAt
-											  ).toLocaleDateString()}
+														.seconds * 1000
+											  ).toLocaleDateString()
+											: typeof recording.createdAt ===
+											  "string"
+											? new Date(
+													recording.createdAt
+											  ).toLocaleDateString()
+											: "Unknown date"}
 									</p>
 								</div>
 							</Link>
