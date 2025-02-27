@@ -41,9 +41,12 @@ export function AdGeneration({
 
 		let mounted = true;
 
+		// Set isGenerating to true immediately to start the animation
+		setIsGenerating(true);
+
 		const generate = async () => {
-			if (isGenerating || !mounted) return;
-			setIsGenerating(true);
+			if (!mounted) return;
+
 			setProgress(0);
 			setError(null);
 
@@ -338,28 +341,34 @@ export function AdGeneration({
 	}, []); // Keep the empty dependency array
 
 	return (
-		<Card className="p-6 bg-blackLighter border border-blackLighter">
+		<Card className="p-6 bg-prim border border-blackLighter">
 			<div className="flex flex-col items-center justify-center space-y-4">
 				<Loader2
-					className={`w-8 h-8 ${isGenerating ? "animate-spin" : ""}`}
+					className={`w-8 h-8 ${
+						isGenerating ? "animate-spin" : ""
+					} text-sec/80 animate-spin`}
 				/>
 				<div className="text-center">
-					<h3 className="text-lg font-medium">Generating Audio</h3>
-					<p className="text-sm text-gray-500">
+					<h3 className="text-lg font-medium text-sec">
+						Generating Audio
+					</h3>
+					<p className="text-sm text-sec/80">
 						{isGenerating
 							? `Generating voice lines... ${Math.round(
 									progress
 							  )}%`
-							: "Generation complete!"}
+							: error
+							? "Generation failed"
+							: "Starting generation..."}
 					</p>
 					{error && (
 						<p className="text-sm text-red-500 mt-2">{error}</p>
 					)}
 				</div>
 
-				<div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+				<div className="w-full h-2 bg-prim rounded-full overflow-hidden">
 					<div
-						className="h-full bg-primary transition-all duration-300"
+						className="h-full bg-sec transition-all duration-300"
 						style={{ width: `${progress}%` }}
 					/>
 				</div>

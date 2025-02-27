@@ -7,6 +7,7 @@ const PREDEFINED_SPEAKERS = {
 		color: "#4ECDC4", // Teal
 		voiceId: "dXtC3XhB9GtPusIpNtQx",
 		example_file_path: "voice-examples/hale.mp3",
+		id: "1",
 	},
 	Customer: {
 		role: "Customer",
@@ -14,6 +15,7 @@ const PREDEFINED_SPEAKERS = {
 		color: "#FF6B6B", // Red
 		voiceId: "bIQlQ61Q7WgbyZAL7IWj",
 		example_file_path: "voice-examples/faith.mp3",
+		id: "2",
 	},
 	NarratorFemale: {
 		role: "NarratorFemale",
@@ -21,6 +23,7 @@ const PREDEFINED_SPEAKERS = {
 		voice: "female2",
 		voiceId: "gDnGxUcsitTxRiGHr904",
 		example_file_path: "voice-examples/katie.mp3",
+		id: "3",
 	},
 } as const;
 

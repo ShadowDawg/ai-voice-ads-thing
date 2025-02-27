@@ -32,13 +32,7 @@ export default function NewRecordingPage() {
 		audioUrl: "",
 	});
 
-	const steps: Step[] = [
-		"duration",
-		"speakers",
-		"script",
-		"generation",
-		"playback",
-	];
+	const steps: Step[] = ["duration", "speakers", "script", "generation"];
 
 	const updateRecordingData = (data: Partial<typeof recordingData>) => {
 		setRecordingData((prev) => ({ ...prev, ...data }));
@@ -85,19 +79,22 @@ export default function NewRecordingPage() {
 					<div className="mb-10">
 						<div className="flex items-center justify-between">
 							{steps.map((step, index) => (
-								<div key={step} className="flex items-center">
+								<div
+									key={step}
+									className="flex items-center justify-center relative w-full"
+								>
 									<div
 										className={`w-7 h-7 rounded-full ${
 											steps.indexOf(currentStep) >= index
 												? "bg-cornsilk text-black font-medium"
 												: "bg-[#282828] text-[#B3B3B3]"
-										} flex items-center justify-center text-sm transition-all duration-300 hover:scale-110`}
+										} flex items-center justify-center text-sm transition-all duration-300 hover:scale-110 z-10`}
 									>
 										{index + 1}
 									</div>
 									{index < steps.length - 1 && (
 										<div
-											className={`w-24 h-[2px] mx-2 ${
+											className={`absolute h-[2px] left-1/2 right-0 w-full ${
 												steps.indexOf(currentStep) >
 												index
 													? "bg-cornsilk"
@@ -163,10 +160,24 @@ export default function NewRecordingPage() {
 						</Button>
 						<Button
 							onClick={goToNextStep}
-							disabled={currentStep === "playback"}
+							disabled={
+								currentStep === "playback" ||
+								currentStep === "generation" ||
+								(currentStep === "duration" &&
+									recordingData.duration === 0) ||
+								(currentStep === "speakers" &&
+									recordingData.speakers.length === 0) ||
+								(currentStep === "script" &&
+									(!recordingData.script.lines ||
+										recordingData.script.lines.length ===
+											0 ||
+										recordingData.script.lines.some(
+											(line) => !line.line.trim()
+										)))
+							}
 							className="bg-cornsilk text-black hover:bg-cornsilk/80 transition-all font-medium"
 						>
-							{currentStep === "generation" ? "Generate" : "Next"}
+							Next
 						</Button>
 					</div>
 				</Card>

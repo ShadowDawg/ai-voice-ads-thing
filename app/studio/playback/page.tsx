@@ -9,6 +9,7 @@ import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { StoredRecording, VoiceLineForPlayback } from "@/types/voice-types";
 import { useSearchParams } from "next/navigation";
+import { dm_sans } from "@/lib/fonts/fonts";
 
 export default function PlaybackPage() {
 	const searchParams = useSearchParams();
@@ -276,7 +277,7 @@ export default function PlaybackPage() {
 
 	return (
 		<div
-			className="min-h-screen transition-colors duration-700 flex flex-col"
+			className={`${dm_sans.className} min-h-screen transition-colors duration-700 flex flex-col`}
 			style={{
 				backgroundColor: getCurrentSpeakerColor(),
 				color: "white",
@@ -304,10 +305,10 @@ export default function PlaybackPage() {
 					<div className="fixed top-6 right-6 z-10">
 						<Button
 							onClick={concatenateAndDownload}
-							className="rounded-full w-12 h-12 flex items-center justify-center bg-white hover:scale-105 transition-transform"
+							className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
 							disabled={voiceLines.length === 0}
 						>
-							<Download className="h-5 w-5 text-black" />
+							<Download className="h-10 w-10 text-black" />
 						</Button>
 					</div>
 
@@ -329,7 +330,7 @@ export default function PlaybackPage() {
 										<p className="text-sm mb-1 opacity-80">
 											{line.role}
 										</p>
-										<p className="text-3xl font-medium cursor-pointer">
+										<p className="text-5xl font-medium cursor-pointer">
 											{line.text}
 										</p>
 									</div>
@@ -371,7 +372,7 @@ export default function PlaybackPage() {
 
 									<Button
 										onClick={togglePlayPause}
-										className="rounded-full w-14 h-14 flex items-center justify-center bg-white hover:scale-105 transition-transform"
+										className="rounded-full w-14 h-14 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
 									>
 										{isPlaying ? (
 											<Pause className="h-6 w-6 text-black" />

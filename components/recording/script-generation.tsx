@@ -381,6 +381,16 @@ export function ScriptGeneration({
 								placeholder="A compelling story about..."
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
+								onKeyDown={(e) => {
+									if (
+										e.key === "Enter" &&
+										prompt.trim() &&
+										!isGenerating
+									) {
+										e.preventDefault();
+										generateScript();
+									}
+								}}
 								className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl"
 							/>
 						</div>
