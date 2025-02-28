@@ -14,11 +14,28 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 	const [playingSpeaker, setPlayingSpeaker] = useState<string | null>(null);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
+	// Helper function to format role names by adding spaces before capital letters
+	const formatRoleName = (role: string) => {
+		return role.replace(/([A-Z])/g, " $1").trim();
+	};
+
+	// Add cleanup effect to stop audio when component unmounts
+	useEffect(() => {
+		// Cleanup function that runs when component unmounts
+		return () => {
+			if (audioRef.current) {
+				audioRef.current.pause();
+				audioRef.current.currentTime = 0;
+				setPlayingSpeaker(null);
+			}
+		};
+	}, []);
+
 	// If no speakers are defined, add a default narrator on mount.
 	useEffect(() => {
 		if (speakers.length === 0) {
 			// Use the Narrator config from the dictionary
-			const narratorConfig = PREDEFINED_SPEAKERS.Narrator;
+			const narratorConfig = PREDEFINED_SPEAKERS.MaleNarrator;
 			const newSpeaker: Speaker = {
 				id: Math.random().toString(36).substr(2, 9),
 				...narratorConfig,
@@ -29,6 +46,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 	}, []);
 
 	const addSpeaker = (selectedRole: string) => {
+		console.log("Adding speaker:", selectedRole);
 		if (speakers.length >= Object.keys(PREDEFINED_SPEAKERS).length) {
 			setError(
 				`Maximum of ${
@@ -40,6 +58,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 
 		// If this role is already added, do not add it again.
 		if (speakers.some((s) => s.role === selectedRole)) {
+			console.log("Speaker already exists, not adding again");
 			return;
 		}
 
@@ -48,18 +67,23 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 			PREDEFINED_SPEAKERS[
 				selectedRole as keyof typeof PREDEFINED_SPEAKERS
 			];
-		if (!speakerConfig) return;
+		if (!speakerConfig) {
+			console.log("Speaker config not found");
+			return;
+		}
 
 		const newSpeaker: Speaker = {
 			id: Math.random().toString(36).substr(2, 9),
 			...speakerConfig,
 		};
 
+		console.log("Adding new speaker:", newSpeaker);
 		onChange([...speakers, newSpeaker]);
 		setError(null);
 	};
 
 	const removeSpeaker = (id: string) => {
+		console.log("Removing speaker with ID:", id);
 		onChange(speakers.filter((speaker) => speaker.id !== id));
 		setError(null);
 	};
@@ -157,7 +181,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 											}}
 										/>
 										<span className="text-white capitalize font-semibold">
-											{speakerConfig.role}
+											{formatRoleName(speakerConfig.role)}
 										</span>
 									</div>
 									<Button
@@ -208,7 +232,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-3">
 									<span className="text-white capitalize">
-										{speaker.role}
+										{formatRoleName(speaker.role)}
 									</span>
 								</div>
 								<Button

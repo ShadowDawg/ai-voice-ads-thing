@@ -79,27 +79,45 @@ function PlaybackContent() {
 			// Get the stored recording data
 			const recordingData = recordingSnap.data() as StoredRecording;
 
-			// Append the silence voice line to the voiceLines if it exists.
-			let finalVoiceLines = recordingData.voiceLines;
-			if (recordingData.silenceLine) {
-				finalVoiceLines = [
-					...recordingData.voiceLines,
-					{
-						text: "Silence", // Label for the UI
-						role: "silence",
-						voiceId: "",
-						response: {
-							audio_base64:
-								recordingData.silenceLine.audio_base64,
-							alignment: recordingData.silenceLine.alignment,
-							normalized_alignment:
-								recordingData.silenceLine.normalized_alignment,
+			// Calculate if we need to add silence
+			const targetDuration = recordingData.duration || 0;
+			const actualDuration =
+				recordingData.actualDuration || targetDuration;
+			const silenceDuration = Math.max(
+				0,
+				targetDuration - actualDuration
+			);
+			console.log("targetDuration", targetDuration);
+			console.log("actualDuration", actualDuration);
+			console.log("silenceDuration", silenceDuration);
+
+			let finalVoiceLines = [...recordingData.voiceLines];
+
+			// Only add silence if needed (more than 0.1 seconds to avoid rounding issues)
+			if (silenceDuration > 0.1) {
+				console.log("Adding silence");
+
+				// Generate silent audio
+				const silentAudio = generateSilentAudio(silenceDuration);
+
+				// Add silence as a virtual voice line
+				finalVoiceLines.push({
+					text: "Silence", // Label for the UI
+					role: "silence",
+					voiceId: "",
+					response: {
+						audio_base64: silentAudio,
+						alignment: {
+							character_end_times_seconds: [silenceDuration],
 						},
-					} as VoiceLineForPlayback,
-				];
+						normalized_alignment: {
+							character_end_times_seconds: [silenceDuration],
+						},
+					},
+				} as VoiceLineForPlayback);
 			}
 
-			// Update state with the complete array (including silence)
+			// Update state with the complete array (including dynamically added silence)
 			setVoiceLines(finalVoiceLines);
 			setLoading(false);
 		} catch (err) {
@@ -109,6 +127,31 @@ function PlaybackContent() {
 			);
 			setLoading(false);
 		}
+	}
+
+	// Helper function to generate a silent audio of specified duration
+	function generateSilentAudio(durationInSeconds: number): string {
+		// Create an audio context
+		const audioContext = new AudioContext();
+		const sampleRate = audioContext.sampleRate;
+		const frameCount = sampleRate * durationInSeconds;
+
+		// Create an empty (silent) buffer
+		const silenceBuffer = audioContext.createBuffer(
+			1, // mono
+			frameCount,
+			sampleRate
+		);
+
+		// Convert to WAV format
+		const wavData = audioBufferToWav(silenceBuffer);
+
+		// Convert to base64
+		return btoa(
+			Array.from(wavData)
+				.map((byte) => String.fromCharCode(byte))
+				.join("")
+		);
 	}
 
 	const getCurrentSpeakerColor = () => {
@@ -167,36 +210,38 @@ function PlaybackContent() {
 			audioRef.current.pause();
 		}
 
-		// Store the current overall time before transitioning
-		const previousOverallTime = getCurrentOverallTime();
-		setOverallTime(previousOverallTime);
-
+		// Create new audio element
 		const newAudio = new Audio(
 			`data:audio/mp3;base64,${voiceLines[index].response.audio_base64}`
 		);
 
+		// Set the current playing index first before updating the audio reference
+		// This ensures calculations are consistent
+		setCurrentlyPlaying(index);
+
+		// Set current time to zero for new voice line
+		setCurrentTime(0);
+
+		// Calculate the precise overall time for this position (sum of all previous line durations)
+		const preciseOverallTime = individualDurations
+			.slice(0, index)
+			.reduce((sum, duration) => sum + duration, 0);
+
+		// Set overall time directly to this calculated value
+		setOverallTime(preciseOverallTime);
+
 		newAudio.addEventListener("timeupdate", () => {
 			setCurrentTime(newAudio.currentTime);
 			// Update overall time smoothly
-			setOverallTime(
-				individualDurations
-					.slice(0, index)
-					.reduce((sum, duration) => sum + duration, 0) +
-					newAudio.currentTime
-			);
+			setOverallTime(preciseOverallTime + newAudio.currentTime);
 		});
 
 		// Instead of updating state, we use the ref.
 		audioRef.current = newAudio;
-		setCurrentlyPlaying(index);
 		setIsPlaying(true);
 
 		newAudio.play();
 		newAudio.onended = () => {
-			// Store the final time of this line before transitioning
-			const finalTimeForLine = getCurrentOverallTime();
-			setOverallTime(finalTimeForLine);
-
 			if (index < voiceLines.length - 1) {
 				playVoiceLine(index + 1);
 			} else {
@@ -313,8 +358,8 @@ function PlaybackContent() {
 					</div>
 
 					{/* Voice Lines */}
-					<div className="container mx-auto p-6 flex-1 flex items-center">
-						<div className="space-y-6 w-full max-w-2xl mx-auto">
+					<div className="container mx-auto p-6 pb-32 flex-1 overflow-y-auto">
+						<div className="space-y-6 w-full max-w-2xl mx-auto my-10">
 							{voiceLines
 								.filter((line) => line.role !== "silence") // Filter out silence lines from display
 								.map((line, index) => (

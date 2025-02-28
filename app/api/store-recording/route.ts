@@ -43,18 +43,21 @@ export async function POST(request: Request) {
 			"voiceLines:",
 			requestData.voiceLines ? "present" : "missing"
 		);
-		console.log(
-			"silenceLine:",
-			requestData.silenceLine ? "present" : "missing"
-		);
 		console.log("duration:", requestData.duration);
+		console.log("actualDuration:", requestData.actualDuration);
 		console.log("speakers:", requestData.speakers ? "present" : "missing");
 		console.log("script:", requestData.script);
 		console.log("title:", requestData.title);
 
 		// Destructure with defaults
-		const { voiceLines, silenceLine, duration, speakers, script, title } =
-			requestData;
+		const {
+			voiceLines,
+			duration,
+			actualDuration,
+			speakers,
+			script,
+			title,
+		} = requestData;
 
 		// Format the data according to StoredRecording type
 		console.log("In store recording...");
@@ -152,10 +155,8 @@ export async function POST(request: Request) {
 						};
 					}
 				),
-				silenceLine: silenceLine
-					? JSON.parse(JSON.stringify(silenceLine))
-					: null,
 				duration,
+				actualDuration: actualDuration,
 				createdAt: Timestamp.now(),
 				title: title,
 			};
@@ -177,11 +178,8 @@ export async function POST(request: Request) {
 				"- voiceLines length:",
 				recordingData.voiceLines?.length || "missing"
 			);
-			console.log(
-				"- silenceLine:",
-				recordingData.silenceLine ? "present" : "null/undefined"
-			);
 			console.log("- duration:", recordingData.duration);
+			console.log("- actualDuration:", recordingData.actualDuration);
 			console.log(
 				"- createdAt type:",
 				recordingData.createdAt

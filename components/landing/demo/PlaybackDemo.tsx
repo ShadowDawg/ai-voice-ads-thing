@@ -31,6 +31,13 @@ export default function PlaybackDemo({
 	);
 	const [overallTime, setOverallTime] = useState(0);
 
+	// Helper function to format role names by adding spaces before capital letters
+	const formatRoleName = (role: string) => {
+		// Don't format "silence" special role
+		if (role === "silence") return role;
+		return role.replace(/([A-Z])/g, " $1").trim();
+	};
+
 	// Load data from JSON file
 	useEffect(() => {
 		const fetchData = async () => {
@@ -45,18 +52,36 @@ export default function PlaybackDemo({
 
 				const data: StoredRecording = await response.json();
 
-				// Append the silence voice line to the voiceLines if it exists
-				let finalVoiceLines = data.voiceLines;
-				if (data.silenceLine) {
-					finalVoiceLines = [
-						...data.voiceLines,
-						{
-							text: "Silence", // Label for the UI
-							role: "silence",
-							voiceId: "",
-							response: data.silenceLine,
-						} as VoiceLineForPlayback,
-					];
+				// Calculate if we need to add silence
+				const targetDuration = data.duration || 0;
+				const actualDuration = data.actualDuration || targetDuration;
+				const silenceDuration = Math.max(
+					0,
+					targetDuration - actualDuration
+				);
+
+				let finalVoiceLines = [...data.voiceLines];
+
+				// Only add silence if needed (more than 0.1 seconds to avoid rounding issues)
+				if (silenceDuration > 0.1) {
+					// Generate silent audio
+					const silentAudio = generateSilentAudio(silenceDuration);
+
+					// Add silence as a virtual voice line
+					finalVoiceLines.push({
+						text: "Silence", // Label for the UI
+						role: "silence",
+						voiceId: "",
+						response: {
+							audio_base64: silentAudio,
+							alignment: {
+								character_end_times_seconds: [silenceDuration],
+							},
+							normalized_alignment: {
+								character_end_times_seconds: [silenceDuration],
+							},
+						},
+					} as VoiceLineForPlayback);
 				}
 
 				setVoiceLines(finalVoiceLines);
@@ -83,6 +108,23 @@ export default function PlaybackDemo({
 
 	const getCurrentSpeakerColor = () => {
 		if (currentlyPlaying === null) return "rgb(17 24 39 / 0.5)"; // Default gray-900/50 background
+
+		// Skip silence entries when determining background color
+		if (voiceLines[currentlyPlaying].role === "silence") {
+			// Find the last non-silence voice line
+			for (let i = currentlyPlaying - 1; i >= 0; i--) {
+				if (voiceLines[i].role !== "silence") {
+					const role = voiceLines[i].role;
+					const speaker =
+						PREDEFINED_SPEAKERS[
+							role as keyof typeof PREDEFINED_SPEAKERS
+						];
+					return speaker?.color || "rgb(17 24 39 / 0.5)";
+				}
+			}
+			return "rgb(17 24 39 / 0.5)"; // Default if no previous non-silence found
+		}
+
 		const role = voiceLines[currentlyPlaying].role;
 		const speaker =
 			PREDEFINED_SPEAKERS[role as keyof typeof PREDEFINED_SPEAKERS];
@@ -142,36 +184,38 @@ export default function PlaybackDemo({
 			audioRef.current.pause();
 		}
 
-		// Store the current overall time before transitioning
-		const previousOverallTime = getCurrentOverallTime();
-		setOverallTime(previousOverallTime);
-
+		// Create new audio element
 		const newAudio = new Audio(
 			`data:audio/mp3;base64,${voiceLines[index].response.audio_base64}`
 		);
 
+		// Set the current playing index first before updating the audio reference
+		// This ensures calculations are consistent
+		setCurrentlyPlaying(index);
+
+		// Set current time to zero for new voice line
+		setCurrentTime(0);
+
+		// Calculate the precise overall time for this position (sum of all previous line durations)
+		const preciseOverallTime = individualDurations
+			.slice(0, index)
+			.reduce((sum, duration) => sum + duration, 0);
+
+		// Set overall time directly to this calculated value
+		setOverallTime(preciseOverallTime);
+
 		newAudio.addEventListener("timeupdate", () => {
 			setCurrentTime(newAudio.currentTime);
 			// Update overall time smoothly
-			setOverallTime(
-				individualDurations
-					.slice(0, index)
-					.reduce((sum, duration) => sum + duration, 0) +
-					newAudio.currentTime
-			);
+			setOverallTime(preciseOverallTime + newAudio.currentTime);
 		});
 
 		// Instead of updating state, we use the ref.
 		audioRef.current = newAudio;
-		setCurrentlyPlaying(index);
 		setIsPlaying(true);
 
 		newAudio.play();
 		newAudio.onended = () => {
-			// Store the final time of this line before transitioning
-			const finalTimeForLine = getCurrentOverallTime();
-			setOverallTime(finalTimeForLine);
-
 			if (index < voiceLines.length - 1) {
 				playVoiceLine(index + 1);
 			} else {
@@ -250,6 +294,31 @@ export default function PlaybackDemo({
 		URL.revokeObjectURL(url);
 	};
 
+	// Helper function to generate a silent audio of specified duration
+	function generateSilentAudio(durationInSeconds: number): string {
+		// Create an audio context
+		const audioContext = new AudioContext();
+		const sampleRate = audioContext.sampleRate;
+		const frameCount = sampleRate * durationInSeconds;
+
+		// Create an empty (silent) buffer
+		const silenceBuffer = audioContext.createBuffer(
+			1, // mono
+			frameCount,
+			sampleRate
+		);
+
+		// Convert to WAV format
+		const wavData = audioBufferToWav(silenceBuffer);
+
+		// Convert to base64
+		return btoa(
+			Array.from(wavData)
+				.map((byte) => String.fromCharCode(byte))
+				.join("")
+		);
+	}
+
 	return (
 		<Card className="overflow-hidden shadow-xl rounded-xl border border-gray-800 w-full max-w-4xl mx-auto bg-black transition-all hover:border-vivid/30 hover:bg-gray-900/70">
 			<div
@@ -289,7 +358,7 @@ export default function PlaybackDemo({
 											onClick={() => playVoiceLine(index)}
 										>
 											<p className="text-xs mb-1 opacity-80">
-												{line.role}
+												{formatRoleName(line.role)}
 											</p>
 											<p className="text-lg font-medium cursor-pointer">
 												{line.text}
@@ -321,10 +390,10 @@ export default function PlaybackDemo({
 									<div className="flex-1">
 										{currentlyPlaying !== null && (
 											<div className="text-xs opacity-80">
-												{
+												{formatRoleName(
 													voiceLines[currentlyPlaying]
 														.role
-												}
+												)}
 											</div>
 										)}
 									</div>

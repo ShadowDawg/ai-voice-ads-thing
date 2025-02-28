@@ -31,6 +31,11 @@ export function ScriptGeneration({
 	const [manualScript, setManualScript] = useState<Script>({ lines: [] });
 	const [aiScript, setAiScript] = useState<Script>({ lines: [] });
 
+	// Helper function to format role names by adding spaces before capital letters
+	const formatRoleName = (role: string) => {
+		return role.replace(/([A-Z])/g, " $1").trim();
+	};
+
 	// Replace useState with useEffect for initialization
 	useEffect(() => {
 		if (script && script.lines) {
@@ -204,7 +209,7 @@ export function ScriptGeneration({
 							className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm flex items-center gap-2"
 						>
 							<span className="font-medium text-cornsilk">
-								{speaker.role}
+								{formatRoleName(speaker.role)}
 							</span>
 						</div>
 					))}
@@ -293,7 +298,9 @@ export function ScriptGeneration({
 														key={speaker.id}
 														value={speaker.role}
 													>
-														{speaker.role}
+														{formatRoleName(
+															speaker.role
+														)}
 													</option>
 												))}
 											</select>
@@ -430,7 +437,9 @@ export function ScriptGeneration({
 												>
 													<div className="flex items-center gap-3">
 														<span className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm font-medium text-cornsilk">
-															{line.role}
+															{formatRoleName(
+																line.role
+															)}
 														</span>
 														<div className="h-px flex-1 bg-neutral-700" />
 													</div>
