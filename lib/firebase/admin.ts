@@ -6,7 +6,7 @@ import {
 } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
-// Only initialize if there are no apps already initialized
+// Only initialize if there are no apps already initialized, hmm
 if (!getApps().length) {
 	// Use environment variables instead of importing the file directly
 	const serviceAccountConfig = {
