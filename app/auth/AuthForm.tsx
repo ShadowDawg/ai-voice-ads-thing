@@ -37,6 +37,7 @@ export default function AuthForm() {
 	// Note: Always rely on the secure, server-side cookie check for authentication.
 	useEffect(() => {
 		if (!loading && user) {
+			console.log("User is already authenticated, redirecting to home");
 			router.push("/home");
 		}
 	}, [user, loading, router]);

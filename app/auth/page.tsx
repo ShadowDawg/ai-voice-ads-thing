@@ -17,6 +17,9 @@ export default async function AuthPage() {
 			);
 			if (decodedClaims) {
 				// The user is already authenticated, so redirect to home
+				console.log(
+					"User is already authenticated, redirecting to home"
+				);
 				redirect("/home");
 			}
 		} catch (error) {

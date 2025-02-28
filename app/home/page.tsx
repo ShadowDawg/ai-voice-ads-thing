@@ -21,8 +21,12 @@ export default async function Studio() {
 	console.time(pageLoadLabel);
 	console.time(sessionVerificationLabel);
 
+	// Debugging: Log the full cookie object so you can see if it's present or not
 	const sessionCookie = (await cookies()).get("session")?.value;
+	console.log("Home page session cookie object:", sessionCookie);
+
 	if (!sessionCookie) {
+		console.log("No valid session cookie found — redirecting to /");
 		redirect("/");
 	}
 
