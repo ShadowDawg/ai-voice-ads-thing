@@ -20,7 +20,7 @@ export default async function AuthPage() {
 				console.log(
 					"User is already authenticated, redirecting to home"
 				);
-				redirect("/home");
+				// redirect("/home");
 			}
 		} catch (error) {
 			// Invalid session cookie, let the user see the auth form
