@@ -4,7 +4,13 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  /* overscroll-behavior: none; Prevents the bounce effect on some browsers */
 }
+
+html {
+  background-color: black;
+}
+
 
 @layer base {
   :root {
