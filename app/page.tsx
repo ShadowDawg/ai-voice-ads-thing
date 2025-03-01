@@ -37,7 +37,7 @@ export default function Home() {
 				{/* How it works section */}
 				<section className="py-16 md:py-24">
 					<div className="container mx-auto px-4">
-						<div className="flex items-center justify-center mb-6">
+						{/* <div className="flex items-center justify-center mb-6">
 							<div className="bg-vivid/20 rounded-full p-2 mr-3">
 								<span className="text-vivid text-xl">⚡</span>
 							</div>
@@ -46,7 +46,7 @@ export default function Home() {
 							>
 								How it works
 							</h2>
-						</div>
+						</div> */}
 
 						<div className="text-center mb-10 md:mb-16">
 							<h3

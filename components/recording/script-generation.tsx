@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock } from "lucide-react";
 import { Speaker } from "./speakers-info";
 import { OpenAI } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { Script, VoiceLine } from "./models";
 import { dm_sans } from "@/lib/fonts/fonts";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ScriptGenerationProps {
 	duration: number;
@@ -30,6 +31,17 @@ export function ScriptGeneration({
 	const [isManualMode, setIsManualMode] = useState(false);
 	const [manualScript, setManualScript] = useState<Script>({ lines: [] });
 	const [aiScript, setAiScript] = useState<Script>({ lines: [] });
+	const [animatedLineCount, setAnimatedLineCount] = useState(0);
+
+	// Create a ref for scrolling the bottom of the AI Script block into view
+	const aiScriptBottomRef = useRef<HTMLDivElement>(null);
+
+	// Scroll smoothly to the bottom of the AI-generated script whenever a new line is added
+	useEffect(() => {
+		if (!isManualMode && aiScriptBottomRef.current) {
+			aiScriptBottomRef.current.scrollIntoView({ behavior: "smooth" });
+		}
+	}, [animatedLineCount, isManualMode]);
 
 	// Helper function to format role names by adding spaces before capital letters
 	const formatRoleName = (role: string) => {
@@ -138,6 +150,7 @@ export function ScriptGeneration({
 	const generateScript = async () => {
 		try {
 			setIsGenerating(true);
+			setAnimatedLineCount(0);
 
 			const response = await fetch("/api/generate-script", {
 				method: "POST",
@@ -157,7 +170,8 @@ export function ScriptGeneration({
 
 			const data = await response.json();
 			setAiScript(data);
-			onChange(data);
+
+			animateLines(data.lines);
 		} catch (error) {
 			console.error("Error generating script:", error);
 			// You might want to add proper error handling here
@@ -166,10 +180,35 @@ export function ScriptGeneration({
 		}
 	};
 
+	// Function to animate lines sequentially
+	const animateLines = (lines: VoiceLine[]) => {
+		if (!lines || lines.length === 0) return;
+
+		setAnimatedLineCount(0);
+
+		lines.forEach((_, index) => {
+			setTimeout(() => {
+				setAnimatedLineCount((prev) => prev + 1);
+			}, index * 1000);
+		});
+
+		onChange({ lines });
+	};
+
 	// Handle mode switching
 	const switchToManualMode = () => {
 		setIsManualMode(true);
-		onChange(manualScript);
+
+		// If manual script is empty, initialize with first speaker
+		if (!manualScript.lines || manualScript.lines.length === 0) {
+			const initialManualScript = {
+				lines: [{ role: speakers[0]?.role || "", line: "" }],
+			};
+			setManualScript(initialManualScript);
+			onChange(initialManualScript);
+		} else {
+			onChange(manualScript);
+		}
 	};
 
 	const switchToAIMode = () => {
@@ -181,7 +220,7 @@ export function ScriptGeneration({
 	const activeScript = isManualMode ? manualScript : aiScript;
 
 	return (
-		<div className={`p-8 `}>
+		<div className={`p-8 py-0 ${dm_sans.className}`}>
 			<div className="space-y-2">
 				<h2 className="text-3xl font-bold text-white tracking-tight">
 					Create Your Script
@@ -192,30 +231,6 @@ export function ScriptGeneration({
 				</p>
 			</div>
 
-			{/* Specifications Display */}
-			<Card className="p-4 mt-6 bg-neutral-800 border border-neutral-700 rounded-xl">
-				<div className="flex items-center justify-between">
-					<h3 className="text-lg font-medium text-cornsilk">
-						Project Details
-					</h3>
-					<div className="px-3 py-1 rounded-full bg-cornsilk text-black text-sm font-medium">
-						{duration}s
-					</div>
-				</div>
-				<div className="flex flex-wrap gap-2 mt-3">
-					{speakers.map((speaker) => (
-						<div
-							key={speaker.id}
-							className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm flex items-center gap-2"
-						>
-							<span className="font-medium text-cornsilk">
-								{formatRoleName(speaker.role)}
-							</span>
-						</div>
-					))}
-				</div>
-			</Card>
-
 			{/* Script Creation Mode Toggle */}
 			<div className="flex gap-4 mt-6">
 				<Button
@@ -223,7 +238,7 @@ export function ScriptGeneration({
 					onClick={switchToAIMode}
 					className={`flex-1 h-12 rounded-xl transition-colors ${
 						!isManualMode
-							? "bg-cornsilk text-black font-medium"
+							? "bg-cornsilk hover:bg-cornsilk/90 text-black font-medium"
 							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
 					}`}
 				>
@@ -234,12 +249,51 @@ export function ScriptGeneration({
 					onClick={switchToManualMode}
 					className={`flex-1 h-12 rounded-xl transition-colors ${
 						isManualMode
-							? "bg-cornsilk text-black font-medium"
+							? "bg-cornsilk hover:bg-cornsilk/90 text-black font-medium"
 							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
 					}`}
 				>
 					Write Manually
 				</Button>
+			</div>
+
+			{/* Specifications Display - Minimalist Version */}
+			<div className="mt-6 border-b border-neutral-700 pb-6">
+				<div className="flex items-center gap-2 mb-3">
+					<span className="text-cornsilk text-sm font-medium">
+						Duration
+					</span>
+					<div className="text-cornsilk text-sm font-medium flex items-center gap-1">
+						<Clock className="h-3.5 w-3.5" />
+						{duration}s
+					</div>
+				</div>
+				<div className="flex items-center gap-2">
+					<span className="text-cornsilk text-sm font-medium">
+						Speakers
+					</span>
+					<div className="flex flex-wrap gap-2">
+						{speakers.map((speaker) => (
+							<div
+								key={speaker.id}
+								className="px-3 py-1.5 rounded-2xl bg-neutral-900 text-sm flex items-center gap-2"
+								style={{
+									border: `1px solid ${speaker.color}`,
+								}}
+							>
+								<span
+									className="inline-block w-3 h-3 rounded-full"
+									style={{
+										backgroundColor: speaker.color,
+									}}
+								/>
+								<span className="font-medium text-cornsilk">
+									{formatRoleName(speaker.role)}
+								</span>
+							</div>
+						))}
+					</div>
+				</div>
 			</div>
 
 			<div className="space-y-6 mt-6">
@@ -275,91 +329,142 @@ export function ScriptGeneration({
 						</div>
 
 						<div className="space-y-6">
-							{manualScript?.lines?.map(
-								(line: VoiceLine, index: number) => (
-									<div key={index} className="space-y-3">
-										<div className="flex items-center gap-3">
-											<select
-												value={line.role}
-												onChange={(e) => {
-													const newScript = {
-														...manualScript,
-													};
-													newScript.lines[
-														index
-													].role = e.target.value;
-													setManualScript(newScript);
-													onChange(newScript);
-												}}
-												className="bg-neutral-800 text-cornsilk text-sm rounded-lg px-3 py-2 border border-neutral-700 focus:border-cornsilk focus:ring-cornsilk"
-											>
-												{speakers.map((speaker) => (
-													<option
-														key={speaker.id}
-														value={speaker.role}
-													>
-														{formatRoleName(
-															speaker.role
-														)}
-													</option>
-												))}
-											</select>
-											<div className="h-px flex-1 bg-neutral-700" />
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() =>
-													removeLine(index)
-												}
-												className="text-gray-400 hover:text-cornsilk hover:bg-neutral-800 rounded-lg"
-											>
-												Remove
-											</Button>
-										</div>
-										<Textarea
-											value={line.line}
-											onChange={(e) => {
-												const newText = e.target.value;
-												if (
-													!isWordLimitExceeded(
-														newText,
-														index
-													)
-												) {
-													const newScript = {
-														...manualScript,
-													};
-													newScript.lines[
-														index
-													].line = newText;
-													setManualScript(newScript);
-													onChange(newScript);
-												}
+							<AnimatePresence>
+								{manualScript?.lines?.map(
+									(line: VoiceLine, index: number) => (
+										<motion.div
+											key={index}
+											initial={{ opacity: 0, y: 20 }}
+											animate={{ opacity: 1, y: 0 }}
+											exit={{
+												opacity: 0,
+												height: 0,
+												marginBottom: 0,
 											}}
-											className="min-h-[80px] text-base leading-relaxed resize-none bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
-											placeholder="Speaker's line..."
-										/>
-										<div className="flex justify-between text-xs text-gray-400">
-											<span>
-												Words:{" "}
-												{
-													line.line
-														.trim()
-														.split(/\s+/)
-														.filter(
-															(word) =>
-																word.length > 0
-														).length
-												}
-											</span>
-											<span>
-												Estimated:{" "}
-												{estimateDuration(line.line)}s
-											</span>
-										</div>
-									</div>
-								)
-							)}
+											transition={{ duration: 0.3 }}
+											className="space-y-3"
+										>
+											<div className="flex items-center gap-3">
+												<div className="flex items-center gap-2 bg-neutral-800 text-cornsilk text-sm rounded-lg px-3 py-2 border border-neutral-700 focus-within:border-cornsilk focus-within:ring-cornsilk">
+													{speakers.find(
+														(s) =>
+															s.role === line.role
+													) && (
+														<span
+															className="inline-block w-3 h-3 rounded-full"
+															style={{
+																backgroundColor:
+																	speakers.find(
+																		(s) =>
+																			s.role ===
+																			line.role
+																	)?.color,
+															}}
+														/>
+													)}
+													<select
+														value={line.role}
+														onChange={(e) => {
+															const newScript = {
+																...manualScript,
+															};
+															newScript.lines[
+																index
+															].role =
+																e.target.value;
+															setManualScript(
+																newScript
+															);
+															onChange(newScript);
+														}}
+														className="bg-transparent text-cornsilk border-none focus:ring-0 focus:outline-none"
+													>
+														{speakers.map(
+															(speaker) => (
+																<option
+																	key={
+																		speaker.id
+																	}
+																	value={
+																		speaker.role
+																	}
+																>
+																	{formatRoleName(
+																		speaker.role
+																	)}
+																</option>
+															)
+														)}
+													</select>
+												</div>
+												<div className="h-px flex-1 bg-neutral-700" />
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() =>
+														removeLine(index)
+													}
+													className="text-sec hover:text-cornsilk hover:bg-neutral-800 rounded-lg"
+												>
+													Remove
+												</Button>
+											</div>
+											<Textarea
+												value={line.line}
+												onChange={(e) => {
+													const newText =
+														e.target.value;
+													if (
+														!isWordLimitExceeded(
+															newText,
+															index
+														)
+													) {
+														const newScript = {
+															...manualScript,
+														};
+														newScript.lines[
+															index
+														].line = newText;
+														setManualScript(
+															newScript
+														);
+														onChange(newScript);
+													}
+												}}
+												className="min-h-[80px] resize-none bg-transparent border-1px-solid border-sec/60 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
+												style={{
+													fontSize: "2rem",
+													lineHeight: "1.5",
+												}}
+												placeholder="Speaker's line..."
+											/>
+											<div className="flex justify-between text-xs text-gray-400">
+												<span>
+													Words:{" "}
+													{
+														line.line
+															.trim()
+															.split(/\s+/)
+															.filter(
+																(word) =>
+																	word.length >
+																	0
+															).length
+													}
+												</span>
+												<span>
+													Estimated:{" "}
+													{estimateDuration(
+														line.line
+													)}
+													s
+												</span>
+											</div>
+										</motion.div>
+									)
+								)}
+							</AnimatePresence>
 						</div>
 
 						<Button
@@ -377,7 +482,7 @@ export function ScriptGeneration({
 						</Button>
 					</div>
 				) : (
-					// Script Generation
+					// Script Generation (AI Mode)
 					<div className="space-y-6">
 						<div>
 							<label className="block text-sm font-medium mb-3 text-gray-400">
@@ -426,44 +531,94 @@ export function ScriptGeneration({
 										Your Script
 									</h3>
 									<div className="space-y-6">
-										{aiScript.lines.map(
-											(
-												line: VoiceLine,
-												index: number
-											) => (
-												<div
-													key={index}
-													className="space-y-3"
-												>
-													<div className="flex items-center gap-3">
-														<span className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm font-medium text-cornsilk">
-															{formatRoleName(
-																line.role
-															)}
-														</span>
-														<div className="h-px flex-1 bg-neutral-700" />
-													</div>
-													<Textarea
-														value={line.line}
-														onChange={(e) => {
-															const newScript = {
-																...aiScript,
-															};
-															newScript.lines[
-																index
-															].line =
-																e.target.value;
-															setAiScript(
-																newScript
-															);
-															onChange(newScript);
-														}}
-														className="min-h-[80px] text-base leading-relaxed resize-none bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
-														placeholder="Speaker's line..."
-													/>
-												</div>
-											)
-										)}
+										<AnimatePresence>
+											{aiScript.lines
+												.slice(0, animatedLineCount)
+												.map(
+													(
+														line: VoiceLine,
+														index: number
+													) => (
+														<motion.div
+															key={index}
+															initial={{
+																opacity: 0,
+																y: 20,
+															}}
+															animate={{
+																opacity: 1,
+																y: 0,
+															}}
+															transition={{
+																duration: 0.3,
+															}}
+															className="space-y-3"
+														>
+															<div className="flex items-center gap-3">
+																<span className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm font-medium text-sec/60 flex items-center gap-2">
+																	{speakers.find(
+																		(s) =>
+																			s.role ===
+																			line.role
+																	) && (
+																		<span
+																			className="inline-block w-3 h-3 rounded-full"
+																			style={{
+																				backgroundColor:
+																					speakers.find(
+																						(
+																							s
+																						) =>
+																							s.role ===
+																							line.role
+																					)
+																						?.color,
+																			}}
+																		/>
+																	)}
+																	{formatRoleName(
+																		line.role
+																	)}
+																</span>
+																<div className="h-px flex-1 bg-neutral-700" />
+															</div>
+															<Textarea
+																value={
+																	line.line
+																}
+																onChange={(
+																	e
+																) => {
+																	const newScript =
+																		{
+																			...aiScript,
+																		};
+																	newScript.lines[
+																		index
+																	].line =
+																		e.target.value;
+																	setAiScript(
+																		newScript
+																	);
+																	onChange(
+																		newScript
+																	);
+																}}
+																className="min-h-[80px] resize-none bg-transparent border-0 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
+																style={{
+																	fontSize:
+																		"2rem",
+																	lineHeight:
+																		"1.5",
+																}}
+																placeholder="Speaker's line..."
+															/>
+														</motion.div>
+													)
+												)}
+										</AnimatePresence>
+										{/* Dummy div for scrolling to the bottom */}
+										<div ref={aiScriptBottomRef} />
 									</div>
 								</div>
 							)}

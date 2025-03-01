@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Trash2, Play, Pause } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { PREDEFINED_SPEAKERS, Speaker } from "./speakers-info";
+import { motion, AnimatePresence } from "framer-motion";
+import { dm_sans } from "@/lib/fonts/fonts";
 
 interface SpeakersSetupProps {
 	speakers: Speaker[];
@@ -123,7 +125,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 	};
 
 	return (
-		<div className="p-8">
+		<div className={`p-8 ${dm_sans.className}`}>
 			<div className="space-y-2">
 				<h2 className="text-3xl font-bold text-white tracking-tight">
 					Configure Speakers
@@ -223,29 +225,40 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 					Selected Speakers
 				</h3>
 				<div className="space-y-4">
-					{speakers.map((speaker) => (
-						<Card
-							key={speaker.id}
-							className="p-3 bg-blackLight border hover:bg-[#2A2A2A] transition-all duration-200 rounded-md"
-							style={{ borderColor: speaker.color }}
-						>
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									<span className="text-white capitalize">
-										{formatRoleName(speaker.role)}
-									</span>
-								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => removeSpeaker(speaker.id)}
-									className="text-[#B3B3B3] hover:text-white hover:bg-[#3E3E3E] transition-colors"
+					<AnimatePresence>
+						{speakers.map((speaker) => (
+							<motion.div
+								key={speaker.id}
+								initial={{ opacity: 0, y: -20, height: 0 }}
+								animate={{ opacity: 1, y: 0, height: "auto" }}
+								exit={{ opacity: 0, y: 20, height: 0 }}
+								transition={{ duration: 0.3 }}
+							>
+								<Card
+									className="p-3 bg-blackLight border hover:bg-[#2A2A2A] transition-all duration-200 rounded-md"
+									style={{ borderColor: speaker.color }}
 								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
-							</div>
-						</Card>
-					))}
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<span className="text-white capitalize">
+												{formatRoleName(speaker.role)}
+											</span>
+										</div>
+										<Button
+											variant="ghost"
+											size="icon"
+											onClick={() =>
+												removeSpeaker(speaker.id)
+											}
+											className="text-[#B3B3B3] hover:text-white hover:bg-[#3E3E3E] transition-colors"
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									</div>
+								</Card>
+							</motion.div>
+						))}
+					</AnimatePresence>
 				</div>
 			</div>
 		</div>
