@@ -234,7 +234,10 @@ export default function Home() {
 							<div className="bg-black/40 border border-gray-800 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
 								{/* Visual content area - Playback Demo */}
 								<div className="flex-1 flex flex-col justify-center mb-6 md:mb-8">
-									<div className="rounded-xl overflow-hidden border border-gray-800">
+									<div
+										className="rounded-xl overflow-hidden border border-gray-800"
+										style={{ height: "300px" }}
+									>
 										<PlaybackDemo
 											jsonPath="/example_recordings/recording-UCdMzmUVLdWwD6yEzstsZVrHeZo2-o9pp4Nv4RF7LZIRXZrq2.json"
 											description=""
@@ -262,82 +265,229 @@ export default function Home() {
 				</section>
 
 				{/* Never spend money section */}
-				<section className="min-h-[80vh] sm:h-screen flex items-center justify-center container mx-auto px-4 py-16 sm:py-0">
-					<div className="relative flex flex-col items-center justify-center text-center">
-						{/* Decorative mic icon - left */}
-						<div className="absolute -left-4 sm:left-0 md:left-16 lg:left-48 opacity-20 hidden sm:block">
+				<section className="min-h-[60vh] sm:h-screen container mx-auto px-4 py-16 sm:py-0 flex items-center justify-center">
+					<div className="flex flex-col items-center text-center">
+						{/* Top decorative dots with a slight rotation */}
+						{/* <div className="mb-4 hidden sm:block">
 							<svg
 								viewBox="0 0 24 24"
-								className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid"
-							>
-								<path
-									fill="currentColor"
-									d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"
-								/>
-							</svg>
-						</div>
-
-						{/* Decorative sound waves - right */}
-						<div className="absolute -right-4 sm:right-0 md:right-16 lg:right-48 opacity-20 hidden sm:block">
-							<svg
-								viewBox="0 0 24 24"
-								className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid"
-							>
-								<path
-									fill="currentColor"
-									d="M3,9H7L12,4V20L7,15H3V9M16.59,12L14,9.41L15.41,8L18,10.59L20.59,8L22,9.41L19.41,12L22,14.59L20.59,16L18,13.41L15.41,16L14,14.59L16.59,12Z"
-								/>
-							</svg>
-						</div>
-
-						{/* Small decorative dots - top */}
-						<div className="absolute top-[-60px] sm:top-[-100px] left-1/2 transform -translate-x-1/2 opacity-20">
-							<svg
-								viewBox="0 0 24 24"
-								className="w-12 h-12 sm:w-16 sm:h-16 text-vivid/50"
+								className="w-12 h-12 sm:w-16 sm:h-16 text-vivid/50 rotate-6 opacity-50"
 							>
 								<path
 									fill="currentColor"
 									d="M8,11A2,2 0 0,1 10,13A2,2 0 0,1 8,15A2,2 0 0,1 6,13A2,2 0 0,1 8,11M10.5,18L12,16L10.5,14L9,16L10.5,18M16,11A2,2 0 0,1 18,13A2,2 0 0,1 16,15A2,2 0 0,1 14,13A2,2 0 0,1 16,11M21,13C21,16.87 17.87,20 14,20L13,20L12,22L11,20L10,20C6.13,20 3,16.87 3,13C3,9.13 6.13,6 10,6H14C17.87,6 21,9.13 21,13M14.4,12L16,10.8L14.4,9.6L13.2,11.2L14.4,12M9.6,12L11.2,10.8L9.6,9.6L8.4,11.2L9.6,12Z"
 								/>
 							</svg>
+						</div> */}
+
+						<div className="flex items-center">
+							{/* Left decorative mic icon with negative rotation */}
+							<div className="hidden sm:block mr-4">
+								<svg
+									viewBox="0 0 24 24"
+									className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid opacity-20 -rotate-12"
+								>
+									<path
+										fill="currentColor"
+										d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"
+									/>
+								</svg>
+							</div>
+
+							<div>
+								<h2
+									className={`${dm_sans.className} text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-3xl`}
+								>
+									Never spend{" "}
+									<span className="text-vivid">$$$</span> on
+									voice actors ever again.
+								</h2>
+								<p
+									className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-sec mb-10 max-w-2xl`}
+								>
+									Professional voiceovers without the
+									professional invoices.
+								</p>
+							</div>
+
+							{/* Right decorative sound waves with a slight rotation */}
+							<div className="hidden sm:block ml-4">
+								<svg
+									viewBox="0 0 24 24"
+									className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid opacity-20 rotate-12"
+								>
+									<path
+										fill="currentColor"
+										d="M3,9H7L12,4V20L7,15H3V9M16.59,12L14,9.41L15.41,8L18,10.59L20.59,8L22,9.41L19.41,12L22,14.59L20.59,16L18,13.41L15.41,16L14,14.59L16.59,12Z"
+									/>
+								</svg>
+							</div>
 						</div>
 
-						{/* Heading and text need to remain above decorative elements */}
-						<h2
-							className={`${dm_sans.className} text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 max-w-3xl relative z-10`}
-						>
-							Never spend <span className="text-vivid">$$$</span>{" "}
-							on voice actors ever again.
-						</h2>
+						{/* Action buttons */}
+						<div className="flex flex-col sm:flex-row gap-4 mb-10">
+							<Button
+								variant="outline"
+								size="lg"
+								asChild
+								className="bg-black rounded-full border-sec/30 text-sec hover:bg-sec/10 hover:text-white transition-all"
+							>
+								<a
+									href="https://cal.com/dev-mandal/15min"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Talk to founders
+								</a>
+							</Button>
+							<Button
+								asChild
+								size="lg"
+								className="rounded-full bg-vivid hover:bg-vivid hover:scale-105 transition-all text-black"
+							>
+								<Link href="/auth">Try it for free</Link>
+							</Button>
+						</div>
 
-						{/* Tagline with more wit */}
-						<p
-							className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-sec mb-10 max-w-2xl relative z-10`}
-						>
-							Professional voiceovers without the professional
-							invoices.
-						</p>
-
-						{/* Subtle decorative element - bottom */}
-						<div className="absolute bottom-[-60px] sm:bottom-[-100px] left-1/2 transform -translate-x-1/2 opacity-10">
+						{/* Bottom decorative element */}
+						{/* <div className="mt-4 hidden sm:block">
 							<svg
 								viewBox="0 0 24 24"
-								className="w-16 h-16 sm:w-24 sm:h-24 text-vivid rotate-45"
+								className="w-16 h-16 sm:w-24 sm:h-24 text-vivid/50 rotate-45 opacity-50"
 							>
 								<path
 									fill="currentColor"
 									d="M12,1C7,1 3,5 3,10V17A3,3 0 0,0 6,20H9V12H5V10A7,7 0 0,1 12,3A7,7 0 0,1 19,10V12H15V20H18A3,3 0 0,0 21,17V10C21,5 16.97,1 12,1Z"
 								/>
 							</svg>
-						</div>
+						</div> */}
 					</div>
 				</section>
 
-				{/* Benefits section */}
-				<section className="py-16 md:py-24">
-					{/* ... existing code ... */}
-				</section>
+				{/* Footer */}
+				<footer className="border-t border-zinc-800 pt-12 relative overflow-hidden">
+					{/* Top footer bar */}
+					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-12">
+						<div className="mb-4 sm:mb-0">
+							<h3
+								className={`${dm_serif.className} text-8xl text-vivid`}
+							>
+								Addie
+							</h3>
+						</div>
+						<div
+							className={`${dm_sans.className} text-sec text-lg md:text-3xl`}
+						>
+							Beautiful voice ads in minutes.
+						</div>
+					</div>
+
+					{/* Main footer content */}
+					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-16">
+						<div className="mb-6 sm:mb-0">
+							<p
+								className={`${dm_sans.className} text-zinc-500 text-sm`}
+							>
+								© {new Date().getFullYear()} Addie. All rights
+								reserved.
+							</p>
+						</div>
+
+						{/* Social media links and operational status */}
+						<div className="flex flex-col items-end">
+							{/* Social media links */}
+							<div className="flex space-x-4 mb-4">
+								<a
+									href="#"
+									className="text-zinc-500 hover:text-vivid transition-colors"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										className="w-6 h-6"
+									>
+										<path
+											fill="currentColor"
+											d="M22.46,6C21.69,6.35 20.86,6.58 20,6.69C20.88,6.16 21.56,5.32 21.88,4.31C21.05,4.81 20.13,5.16 19.16,5.36C18.37,4.5 17.26,4 16,4C13.65,4 11.73,5.92 11.73,8.29C11.73,8.63 11.77,8.96 11.84,9.27C8.28,9.09 5.11,7.38 3,4.79C2.63,5.42 2.42,6.16 2.42,6.94C2.42,8.43 3.17,9.75 4.33,10.5C3.62,10.5 2.96,10.3 2.38,10C2.38,10 2.38,10 2.38,10.03C2.38,12.11 3.86,13.85 5.82,14.24C5.46,14.34 5.08,14.39 4.69,14.39C4.42,14.39 4.15,14.36 3.89,14.31C4.43,16 6,17.26 7.89,17.29C6.43,18.45 4.58,19.13 2.56,19.13C2.22,19.13 1.88,19.11 1.54,19.07C3.44,20.29 5.7,21 8.12,21C16,21 20.33,14.46 20.33,8.79C20.33,8.6 20.33,8.42 20.32,8.23C21.16,7.63 21.88,6.87 22.46,6Z"
+										/>
+									</svg>
+								</a>
+								<a
+									href="#"
+									className="text-zinc-500 hover:text-vivid transition-colors"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										className="w-6 h-6"
+									>
+										<path
+											fill="currentColor"
+											d="M12 2.04C6.5 2.04 2,6.53 2,12.06C2,17.06 5.66,21.21 10.44,21.96V14.96H7.9V12.06H10.44V9.85C10.44,7.34 11.93,5.96 14.22,5.96C15.31,5.96 16.45,6.15 16.45,6.15V8.62H15.19C13.95,8.62 13.56,9.39 13.56,10.18V12.06H16.34L15.89,14.96H13.56V21.96A10,10 0 0,0 22,12.06C22,6.53 17.5,2.04 12,2.04Z"
+										/>
+									</svg>
+								</a>
+								<a
+									href="#"
+									className="text-zinc-500 hover:text-vivid transition-colors"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										className="w-6 h-6"
+									>
+										<path
+											fill="currentColor"
+											d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z"
+										/>
+									</svg>
+								</a>
+								<a
+									href="#"
+									className="text-zinc-500 hover:text-vivid transition-colors"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										className="w-6 h-6"
+									>
+										<path
+											fill="currentColor"
+											d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"
+										/>
+									</svg>
+								</a>
+								<a
+									href="#"
+									className="text-zinc-500 hover:text-vivid transition-colors"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										className="w-6 h-6"
+									>
+										<path
+											fill="currentColor"
+											d="M23,11H21V9H19V11H17V13H19V15H21V13H23M8,11V13.4H12C11.8,14.4 10.8,16.4 8,16.4C5.6,16.4 3.7,14.4 3.7,12C3.7,9.6 5.6,7.6 8,7.6C9.4,7.6 10.3,8.2 10.8,8.7L12.7,6.9C11.5,5.7 9.9,5 8,5C4.1,5 1,8.1 1,12C1,15.9 4.1,19 8,19C12,19 14.7,16.2 14.7,12.2C14.7,11.7 14.7,11.4 14.6,11H8Z"
+										/>
+									</svg>
+								</a>
+							</div>
+
+							{/* Operational status indicator */}
+							<div className="flex items-center">
+								<span className="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
+								<span className="text-zinc-500 text-xs">
+									Operational
+								</span>
+							</div>
+						</div>
+					</div>
+
+					{/* Large background text - properly positioned at bottom with half cut off */}
+					<div className="w-full h-[12rem] md:h-[18rem] overflow-hidden">
+						<span
+							className={`${dm_serif.className} text-[20rem] md:text-[30rem] text-sec/10 leading-none block text-center`}
+						>
+							Addie
+						</span>
+					</div>
+				</footer>
 			</main>
 		</div>
 	);

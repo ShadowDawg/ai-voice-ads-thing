@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, Download } from "lucide-react";
 import { PREDEFINED_SPEAKERS } from "@/components/recording/speakers-info";
 import { VoiceLineForPlayback, StoredRecording } from "@/types/voice-types";
+import { dm_sans } from "@/lib/fonts/fonts";
 
 interface PlaybackDemoProps {
 	jsonPath: string;
@@ -30,6 +31,8 @@ export default function PlaybackDemo({
 		[]
 	);
 	const [overallTime, setOverallTime] = useState(0);
+
+	const voiceLinesContainerRef = useRef<HTMLDivElement>(null);
 
 	// Helper function to format role names by adding spaces before capital letters
 	const formatRoleName = (role: string) => {
@@ -319,119 +322,162 @@ export default function PlaybackDemo({
 		);
 	}
 
+	useEffect(() => {
+		if (currentlyPlaying !== null && voiceLinesContainerRef.current) {
+			const container = voiceLinesContainerRef.current;
+			const voiceLineEl = container.querySelector(
+				`#voice-line-${currentlyPlaying}`
+			);
+			if (voiceLineEl) {
+				// Get bounding rectangles for container and target element
+				const containerRect = container.getBoundingClientRect();
+				const voiceLineRect = voiceLineEl.getBoundingClientRect();
+				// Calculate the offset such that the target is centered within the container
+				const offset =
+					voiceLineRect.top -
+					containerRect.top -
+					container.clientHeight / 2 +
+					voiceLineRect.height / 2;
+				container.scrollTo({
+					top: container.scrollTop + offset,
+					behavior: "smooth",
+				});
+			}
+		}
+	}, [currentlyPlaying]);
+
 	return (
-		<Card className="overflow-hidden shadow-xl rounded-xl border border-gray-800 w-full max-w-4xl mx-auto bg-black transition-all hover:border-vivid/30 hover:bg-gray-900/70">
+		<div className={`${dm_sans.className} flex flex-col h-full`}>
+			<Card className="overflow-hidden shadow-xl rounded-xl rounded-b-none border-b-2 border-gray-800 w-full max-w-4xl mx-auto bg-black transition-all hover:border-vivid/30 hover:bg-gray-900/70">
+				<div
+					className="min-h-[100px] transition-colors duration-700 flex flex-col relative"
+					style={{
+						backgroundColor: getCurrentSpeakerColor(),
+						color: "white",
+					}}
+				>
+					{isLoading ? (
+						<div className="flex-1 flex items-center justify-center">
+							<p className="text-center opacity-50 text-sm">
+								Loading demo...
+							</p>
+						</div>
+					) : voiceLines.length === 0 ? (
+						<div className="flex-1 flex items-center justify-center">
+							<p className="text-center opacity-50 text-sm">
+								No voice lines found
+							</p>
+						</div>
+					) : (
+						<>
+							{/* Voice Lines - increased font sizes */}
+							<div
+								ref={voiceLinesContainerRef}
+								className="p-6 flex-1 overflow-y-auto max-h-[300px] pb-32"
+							>
+								<div className="space-y-4 w-full max-w-2xl mx-auto px-2">
+									{voiceLines
+										.filter(
+											(line) => line.role !== "silence"
+										)
+										.map((line) => {
+											// Use the original index from the full voiceLines array.
+											const originalIndex =
+												voiceLines.indexOf(line);
+											return (
+												<div
+													id={`voice-line-${originalIndex}`}
+													key={originalIndex}
+													className={`transition-all duration-300 ${
+														currentlyPlaying ===
+														originalIndex
+															? "scale-105 opacity-100"
+															: "opacity-50 hover:opacity-80"
+													}`}
+													onClick={() =>
+														playVoiceLine(
+															originalIndex
+														)
+													}
+												>
+													<p className="text-base mb-1 opacity-80">
+														{formatRoleName(
+															line.role
+														)}
+													</p>
+													<p className="text-xl font-medium cursor-pointer">
+														{line.text}
+													</p>
+												</div>
+											);
+										})}
+								</div>
+							</div>
+						</>
+					)}
+				</div>
+			</Card>
 			<div
-				className="min-h-[400px] transition-colors duration-700 flex flex-col relative"
+				className="p-4 backdrop-blur-lg transition-colors duration-700 max-w-4xl mx-auto w-full border-x border-b border-gray-800 rounded-b-xl"
 				style={{
-					backgroundColor: getCurrentSpeakerColor(),
+					// backgroundColor: getCurrentSpeakerColor(),
+					backgroundColor: "rgb(17 24 39 / 0.5)",
 					color: "white",
 				}}
 			>
-				{isLoading ? (
-					<div className="flex-1 flex items-center justify-center">
-						<p className="text-center opacity-50 text-sm">
-							Loading demo...
-						</p>
+				<div className="flex flex-col gap-2">
+					{/* Progress bar */}
+					<div className="w-full bg-white/20 h-1 rounded-full overflow-hidden">
+						<div
+							className="bg-white h-full transition-all duration-150"
+							style={{
+								width: `${
+									(getCurrentOverallTime() / totalDuration) *
+									100
+								}%`,
+							}}
+						/>
 					</div>
-				) : voiceLines.length === 0 ? (
-					<div className="flex-1 flex items-center justify-center">
-						<p className="text-center opacity-50 text-sm">
-							No voice lines found
-						</p>
-					</div>
-				) : (
-					<>
-						{/* Voice Lines - reduced font sizes */}
-						<div className="p-4 flex-1 flex items-center">
-							<div className="space-y-4 w-full max-w-2xl mx-auto">
-								{voiceLines
-									.filter((line) => line.role !== "silence") // Filter out silence lines from display
-									.map((line, index) => (
-										<div
-											key={index}
-											className={`transition-all duration-300 ${
-												currentlyPlaying === index
-													? "scale-105 opacity-100"
-													: "opacity-50 hover:opacity-80"
-											}`}
-											onClick={() => playVoiceLine(index)}
-										>
-											<p className="text-xs mb-1 opacity-80">
-												{formatRoleName(line.role)}
-											</p>
-											<p className="text-lg font-medium cursor-pointer">
-												{line.text}
-											</p>
-										</div>
-									))}
-							</div>
+
+					{/* Controls and time */}
+					<div className="flex justify-between items-center text-white">
+						<div className="flex-1">
+							{currentlyPlaying !== null && (
+								<div className="text-xs opacity-80">
+									{/* {formatRoleName(
+										voiceLines[currentlyPlaying].role
+									)} */}
+								</div>
+							)}
 						</div>
 
-						{/* Playback Controls - reduced sizes */}
-						<div className="p-4 bg-black/30 backdrop-blur-lg">
-							<div className="flex flex-col gap-2">
-								{/* Progress bar */}
-								<div className="w-full bg-white/20 h-1 rounded-full overflow-hidden">
-									<div
-										className="bg-white h-full transition-all duration-150"
-										style={{
-											width: `${
-												(getCurrentOverallTime() /
-													totalDuration) *
-												100
-											}%`,
-										}}
-									/>
-								</div>
+						<div className="flex items-center gap-4">
+							<span className="text-xs opacity-80">
+								{formatTime(getCurrentOverallTime())}
+							</span>
 
-								{/* Controls and time */}
-								<div className="flex justify-between items-center">
-									<div className="flex-1">
-										{currentlyPlaying !== null && (
-											<div className="text-xs opacity-80">
-												{formatRoleName(
-													voiceLines[currentlyPlaying]
-														.role
-												)}
-											</div>
-										)}
-									</div>
+							<Button
+								onClick={togglePlayPause}
+								className="rounded-full w-10 h-10 flex items-center justify-center bg-white hover:scale-105 transition-transform shadow-lg"
+								aria-label={isPlaying ? "Pause" : "Play"}
+							>
+								{isPlaying ? (
+									<Pause className="h-4 w-4 text-black" />
+								) : (
+									<Play className="h-4 w-4 text-black ml-0.5" />
+								)}
+							</Button>
 
-									<div className="flex items-center gap-4">
-										<span className="text-xs opacity-80">
-											{formatTime(
-												getCurrentOverallTime()
-											)}
-										</span>
-
-										<Button
-											onClick={togglePlayPause}
-											className="rounded-full w-10 h-10 flex items-center justify-center bg-white hover:scale-105 transition-transform shadow-lg"
-											aria-label={
-												isPlaying ? "Pause" : "Play"
-											}
-										>
-											{isPlaying ? (
-												<Pause className="h-4 w-4 text-black" />
-											) : (
-												<Play className="h-4 w-4 text-black ml-0.5" />
-											)}
-										</Button>
-
-										<span className="text-xs opacity-80">
-											{formatTime(totalDuration)}
-										</span>
-									</div>
-
-									<div className="flex-1" />
-								</div>
-							</div>
+							<span className="text-xs opacity-80">
+								{formatTime(totalDuration)}
+							</span>
 						</div>
-					</>
-				)}
+
+						<div className="flex-1" />
+					</div>
+				</div>
 			</div>
-		</Card>
+		</div>
 	);
 }
 
