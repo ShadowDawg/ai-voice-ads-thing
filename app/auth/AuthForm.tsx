@@ -160,64 +160,68 @@ export default function AuthForm() {
 				</button>
 			</div>
 
-			{isSignUp ? (
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(handleGoogleSignUp)}
-						className="space-y-6"
-					>
-						<FormField
-							control={form.control}
-							name="firstName"
-							render={({ field }) => (
-								<FormItem>
-									<FormControl>
-										<Input
-											placeholder="First Name"
-											className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage className="text-red-400" />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="lastName"
-							render={({ field }) => (
-								<FormItem>
-									<FormControl>
-										<Input
-											placeholder="Last Name"
-											className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage className="text-red-400" />
-								</FormItem>
-							)}
-						/>
+			<div className="flex items-start">
+				{isSignUp ? (
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(handleGoogleSignUp)}
+							className="space-y-6 w-full"
+						>
+							<FormField
+								control={form.control}
+								name="firstName"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<Input
+												placeholder="First Name"
+												className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage className="text-red-400" />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="lastName"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<Input
+												placeholder="Last Name"
+												className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-vivid focus:ring-vivid rounded-xl"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage className="text-red-400" />
+									</FormItem>
+								)}
+							/>
+							<Button
+								type="submit"
+								className={`${dm_sans.className} w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors`}
+								disabled={loading}
+							>
+								<FcGoogle className="mr-3 h-5 w-5" />
+								Sign up with Google
+							</Button>
+						</form>
+					</Form>
+				) : (
+					<div className="w-full">
 						<Button
-							type="submit"
+							onClick={handleGoogleLogin}
 							className={`${dm_sans.className} w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors`}
 							disabled={loading}
 						>
 							<FcGoogle className="mr-3 h-5 w-5" />
-							Sign up with Google
+							Login with Google
 						</Button>
-					</form>
-				</Form>
-			) : (
-				<Button
-					onClick={handleGoogleLogin}
-					className={`${dm_sans.className} w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors`}
-					disabled={loading}
-				>
-					<FcGoogle className="mr-3 h-5 w-5" />
-					Login with Google
-				</Button>
-			)}
+					</div>
+				)}
+			</div>
 		</>
 	);
 }

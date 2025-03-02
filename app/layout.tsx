@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthContextProvider } from "./context/AuthContext";
-import { Providers } from "./providers";
+import { PostHogProvider, Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +22,9 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={inter.className}>
 				<Providers>
-					<AuthContextProvider>{children}</AuthContextProvider>
+					<PostHogProvider>
+						<AuthContextProvider>{children}</AuthContextProvider>
+					</PostHogProvider>
 				</Providers>
 			</body>
 		</html>
