@@ -18,8 +18,19 @@ if (!getApps().length) {
 		// private_key: process.env.FIREBASE_PRIVATE_KEY?.split(
 		// 	String.raw`\n`
 		// ).join("\n"),
-		private_key: JSON.parse(process.env.FIREBASE_PRIVATE_KEY || "{}")
-			.privateKey,
+		// private_key: JSON.parse(process.env.FIREBASE_PRIVATE_KEY || "{}")
+		// 	.privateKey,
+		private_key: (() => {
+			try {
+				const rawValue = process.env.FIREBASE_PRIVATE_KEY || "{}";
+				// Remove surrounding quotes if present (handles both ' and " quotes)
+				const cleanedJson = rawValue.replace(/^['"]|['"]$/g, "");
+				return JSON.parse(cleanedJson).privateKey;
+			} catch (error) {
+				console.error("Error parsing private key:", error);
+				return "";
+			}
+		})(),
 		client_email: process.env.FIREBASE_CLIENT_EMAIL,
 		client_id: process.env.FIREBASE_CLIENT_ID,
 		auth_uri: process.env.FIREBASE_AUTH_URI,
