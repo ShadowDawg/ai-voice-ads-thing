@@ -10,7 +10,7 @@ export default async function AuthPage() {
 
 	if (sessionCookie) {
 		try {
-			// Verify the session cookie securely on the server
+			// Verify the session cookie on the server
 			const decodedClaims = await adminAuth.verifySessionCookie(
 				sessionCookie,
 				true

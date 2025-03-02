@@ -3,16 +3,17 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Download } from "lucide-react";
+import { Play, Pause, Download, ChevronLeft } from "lucide-react";
 import { PREDEFINED_SPEAKERS } from "@/components/recording/speakers-info";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { StoredRecording, VoiceLineForPlayback } from "@/types/voice-types";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { dm_sans } from "@/lib/fonts/fonts";
 
 function PlaybackContent() {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const recordingId = searchParams.get("id");
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -328,6 +329,27 @@ function PlaybackContent() {
 				color: "white",
 			}}
 		>
+			{/* Back Button */}
+			<div className="fixed top-6 left-6 z-10">
+				<Button
+					onClick={() => router.back()}
+					className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
+				>
+					<ChevronLeft className="h-10 w-10 text-black" />
+				</Button>
+			</div>
+
+			{/* Download Button */}
+			<div className="fixed top-6 right-6 z-10">
+				<Button
+					onClick={concatenateAndDownload}
+					className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
+					disabled={voiceLines.length === 0}
+				>
+					<Download className="h-10 w-10 text-black" />
+				</Button>
+			</div>
+
 			{loading ? (
 				<div className="flex-1 flex items-center justify-center">
 					<p className="text-center opacity-50">
@@ -346,20 +368,9 @@ function PlaybackContent() {
 				</div>
 			) : (
 				<>
-					{/* Download Button */}
-					<div className="fixed top-6 right-6 z-10">
-						<Button
-							onClick={concatenateAndDownload}
-							className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
-							disabled={voiceLines.length === 0}
-						>
-							<Download className="h-10 w-10 text-black" />
-						</Button>
-					</div>
-
 					{/* Voice Lines */}
-					<div className="container mx-auto p-6 pb-32 flex-1 overflow-y-auto">
-						<div className="space-y-6 w-full max-w-2xl mx-auto my-10">
+					<div className="container mx-auto p-6 pb-32 flex-1 overflow-y-auto flex flex-col justify-center">
+						<div className="space-y-6 w-full max-w-2xl mx-auto">
 							{voiceLines
 								.filter((line) => line.role !== "silence") // Filter out silence lines from display
 								.map((line, index) => (

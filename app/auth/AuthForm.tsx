@@ -38,7 +38,7 @@ export default function AuthForm() {
 	useEffect(() => {
 		if (!loading && user) {
 			console.log("User is already authenticated, redirecting to home");
-			router.push("/home");
+			// router.push("/home");
 		}
 	}, [user, loading, router]);
 
