@@ -8,6 +8,9 @@ export async function GET(request: Request) {
 	const page = parseInt(searchParams.get("page") || "1");
 	const limit = parseInt(searchParams.get("limit") || "6");
 
+	// Ensure Firebase is initialized by referencing adminAuth
+	console.log("Firebase Admin initialized:", !!adminAuth);
+
 	if (!userId) {
 		return NextResponse.json(
 			{ error: "User ID is required" },
