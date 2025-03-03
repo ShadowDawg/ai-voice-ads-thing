@@ -54,9 +54,9 @@ export function HomeHeader() {
 	};
 
 	return (
-		<div className="flex justify-between items-center mb-8">
+		<div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-4 sm:mb-8">
 			<h1
-				className={`${dm_serif.className} text-vivid text-5xl font-bold`}
+				className={`${dm_serif.className} text-vivid text-3xl sm:text-4xl md:text-5xl font-bold text-center sm:text-left`}
 			>
 				Addie Home
 			</h1>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Download, ChevronLeft } from "lucide-react";
+import { Play, Pause, Download, ChevronLeft, Home } from "lucide-react";
 import { PREDEFINED_SPEAKERS } from "@/components/recording/speakers-info";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
@@ -333,9 +333,19 @@ function PlaybackContent() {
 			<div className="fixed top-6 left-6 z-10">
 				<Button
 					onClick={() => router.back()}
-					className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
+					className="rounded-full w-12 h-12 flex items-center justify-center bg-[#1a1a1a] hover:bg-sec/20 hover:scale-105 transition-transform"
 				>
-					<ChevronLeft className="h-10 w-10 text-black" />
+					<ChevronLeft className="h-10 w-10 text-white" />
+				</Button>
+			</div>
+
+			{/* Home Button */}
+			<div className="fixed top-6 right-20 z-10">
+				<Button
+					onClick={() => router.push("/home")}
+					className="rounded-full w-12 h-12 flex items-center justify-center bg-[#1a1a1a] hover:bg-sec/20 hover:scale-105 transition-transform"
+				>
+					<Home className="h-10 w-10 text-white" />
 				</Button>
 			</div>
 
@@ -343,10 +353,10 @@ function PlaybackContent() {
 			<div className="fixed top-6 right-6 z-10">
 				<Button
 					onClick={concatenateAndDownload}
-					className="rounded-full w-12 h-12 flex items-center justify-center bg-sec hover:bg-sec hover:scale-105 transition-transform"
+					className="rounded-full w-12 h-12 flex items-center justify-center bg-[#1a1a1a] hover:bg-sec/20 hover:scale-105 transition-transform"
 					disabled={voiceLines.length === 0}
 				>
-					<Download className="h-10 w-10 text-black" />
+					<Download className="h-10 w-10 text-white" />
 				</Button>
 			</div>
 
@@ -369,7 +379,7 @@ function PlaybackContent() {
 			) : (
 				<>
 					{/* Voice Lines */}
-					<div className="container mx-auto p-6 pb-32 flex-1 overflow-y-auto flex flex-col justify-center">
+					<div className="container mx-auto p-6 pt-20 pb-32 flex-1 overflow-y-auto flex flex-col justify-center">
 						<div className="space-y-6 w-full max-w-2xl mx-auto">
 							{voiceLines
 								.filter((line) => line.role !== "silence") // Filter out silence lines from display

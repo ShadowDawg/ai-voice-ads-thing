@@ -67,10 +67,10 @@ export function RecordingsList({ userId }: { userId: string }) {
 	const displayTotalPages = isLoading ? lastKnownTotalPages : totalPages || 1;
 
 	return (
-		<div className="space-y-8 flex flex-col">
-			<div className="flex-1 min-h-[400px]">
+		<div className="space-y-4 sm:space-y-8 flex flex-col">
+			<div className="flex-1 min-h-[300px] sm:min-h-[400px]">
 				{isError ? (
-					<div className="text-red-400 text-center font-medium h-full flex items-center justify-center">
+					<div className="text-red-400 text-center font-medium h-full flex items-center justify-center p-4">
 						Error loading recordings:{" "}
 						{error instanceof Error
 							? error.message
@@ -78,30 +78,30 @@ export function RecordingsList({ userId }: { userId: string }) {
 					</div>
 				) : isLoading ? (
 					<div className="h-full flex items-center justify-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cornsilk" />
+						<div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-cornsilk" />
 					</div>
 				) : !recordings?.length ? (
-					<div className="text-cornsilk/80 text-center italic h-full flex items-center justify-center">
+					<div className="text-cornsilk/80 text-center italic h-full flex items-center justify-center p-4">
 						No recordings yet. Create your first one!
 					</div>
 				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
 						{recordings.map((recording) => (
 							<Link
 								key={recording.docId}
 								href={`/studio/playback?id=${recording.docId}`}
-								className="bg-prim/70 backdrop-blur-sm rounded-2xl p-6 hover:bg-black/40 transition-all hover:scale-[1.02] cursor-pointer block border border-cornsilk/10 group"
+								className="bg-prim/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:bg-black/40 transition-all hover:scale-[1.02] cursor-pointer block border border-cornsilk/10 group"
 							>
 								<h3
-									className={`${dm_serif.className} text-2xl text-cornsilk mb-3`}
+									className={`${dm_serif.className} text-xl sm:text-2xl text-cornsilk mb-2 sm:mb-3`}
 								>
 									{recording.title}
 								</h3>
 								<div
-									className={`${dm_sans.className} text-cornsilk/70 space-y-2`}
+									className={`${dm_sans.className} text-sm sm:text-base text-cornsilk/70 space-y-1 sm:space-y-2`}
 								>
 									<p className="flex items-center gap-2">
-										<span className="w-2 h-2 bg-green-400 rounded-full group-hover:animate-pulse"></span>
+										<span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full group-hover:animate-pulse"></span>
 										Duration:{" "}
 										{Math.round(recording.duration)}s
 									</p>
@@ -135,11 +135,11 @@ export function RecordingsList({ userId }: { userId: string }) {
 			</div>
 
 			{showPagination && (
-				<div className="flex justify-center items-center gap-4 mt-auto pt-4">
+				<div className="flex justify-center items-center gap-2 sm:gap-4 mt-auto pt-4">
 					<button
 						onClick={handlePrevPage}
 						disabled={currentPage === 1 || isLoading}
-						className={`px-4 py-2 rounded-lg border border-cornsilk/20 ${
+						className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg border border-cornsilk/20 ${
 							currentPage === 1 || isLoading
 								? "text-cornsilk/40 cursor-not-allowed"
 								: "text-cornsilk hover:bg-prim/50 transition-colors"
@@ -147,7 +147,9 @@ export function RecordingsList({ userId }: { userId: string }) {
 					>
 						Previous
 					</button>
-					<span className={`${dm_sans.className} text-cornsilk`}>
+					<span
+						className={`${dm_sans.className} text-sm sm:text-base text-cornsilk`}
+					>
 						Page {currentPage} of {displayTotalPages}
 					</span>
 					<button
@@ -155,7 +157,7 @@ export function RecordingsList({ userId }: { userId: string }) {
 						disabled={
 							currentPage === displayTotalPages || isLoading
 						}
-						className={`px-4 py-2 rounded-lg border border-cornsilk/20 ${
+						className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg border border-cornsilk/20 ${
 							currentPage === displayTotalPages || isLoading
 								? "text-cornsilk/40 cursor-not-allowed"
 								: "text-cornsilk hover:bg-prim/50 transition-colors"

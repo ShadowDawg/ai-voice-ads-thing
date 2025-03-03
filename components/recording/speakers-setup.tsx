@@ -125,23 +125,23 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 	};
 
 	return (
-		<div className={`p-8 ${dm_sans.className}`}>
+		<div className={`p-4 sm:p-6 md:p-8 ${dm_sans.className}`}>
 			<div className="space-y-2">
-				<h2 className="text-3xl font-bold text-white tracking-tight">
+				<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
 					Configure Speakers
 				</h2>
-				<p className="text-[#B3B3B3] text-lg">
+				<p className="text-[#B3B3B3] text-base sm:text-lg">
 					Add and configure the voices for your ad. Start with a
 					narrator and add more speakers as needed.
 				</p>
 			</div>
 
 			{/* Grid of all speakers for preview and selection - Moved up */}
-			<div className="mt-4">
-				<h3 className="text-xl font-semibold text-white mb-2">
+			<div className="mt-3 sm:mt-4">
+				<h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
 					Available Speakers
 				</h3>
-				<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
 					{allSpeakers.map((speakerConfig) => {
 						const isSelected = speakers.some(
 							(s) => s.role === speakerConfig.role
@@ -162,7 +162,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 										addSpeaker(speakerConfig.role);
 									}
 								}}
-								className={`cursor-pointer p-4 bg-blackLight hover:bg-[#3E3E3E] transition-all duration-200 rounded-md ${
+								className={`cursor-pointer p-3 sm:p-4 bg-blackLight hover:bg-[#3E3E3E] transition-all duration-200 rounded-md ${
 									isSelected
 										? "ring-2 ring-cornsilk"
 										: "border border-[#404040]"
@@ -182,7 +182,7 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 													speakerConfig.color,
 											}}
 										/>
-										<span className="text-white capitalize font-semibold">
+										<span className="text-white capitalize font-semibold text-sm sm:text-base">
 											{formatRoleName(speakerConfig.role)}
 										</span>
 									</div>
@@ -196,13 +196,13 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 										}}
 										variant="ghost"
 										size="icon"
-										className="text-white hover:bg-[#3E3E3E]"
+										className="text-white hover:bg-[#3E3E3E] h-8 w-8 sm:h-9 sm:w-9"
 									>
 										{playingSpeaker ===
 										speakerConfig.role ? (
-											<Pause className="h-4 w-4" />
+											<Pause className="h-3 w-3 sm:h-4 sm:w-4" />
 										) : (
-											<Play className="h-4 w-4" />
+											<Play className="h-3 w-3 sm:h-4 sm:w-4" />
 										)}
 									</Button>
 								</div>
@@ -214,17 +214,17 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 
 			{/* Error message */}
 			{error && (
-				<p className="text-[#F15E6C] text-sm bg-[#2A1619] px-4 py-2 rounded-md mt-4">
+				<p className="text-[#F15E6C] text-xs sm:text-sm bg-[#2A1619] px-3 sm:px-4 py-2 rounded-md mt-3 sm:mt-4">
 					{error}
 				</p>
 			)}
 
 			{/* Selected speakers list - Moved down and added heading */}
-			<div className="mt-6">
-				<h3 className="text-xl font-semibold text-white mb-2">
+			<div className="mt-4 sm:mt-6">
+				<h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
 					Selected Speakers
 				</h3>
-				<div className="space-y-4">
+				<div className="space-y-2 sm:space-y-4">
 					<AnimatePresence>
 						{speakers.map((speaker) => (
 							<motion.div
@@ -235,12 +235,12 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 								transition={{ duration: 0.3 }}
 							>
 								<Card
-									className="p-3 bg-blackLight border hover:bg-[#2A2A2A] transition-all duration-200 rounded-md"
+									className="p-2 sm:p-3 bg-blackLight border hover:bg-[#2A2A2A] transition-all duration-200 rounded-md"
 									style={{ borderColor: speaker.color }}
 								>
 									<div className="flex items-center justify-between">
-										<div className="flex items-center gap-3">
-											<span className="text-white capitalize">
+										<div className="flex items-center gap-2 sm:gap-3">
+											<span className="text-white capitalize text-sm sm:text-base">
 												{formatRoleName(speaker.role)}
 											</span>
 										</div>
@@ -250,9 +250,9 @@ export function SpeakersSetup({ speakers, onChange }: SpeakersSetupProps) {
 											onClick={() =>
 												removeSpeaker(speaker.id)
 											}
-											className="text-[#B3B3B3] hover:text-white hover:bg-[#3E3E3E] transition-colors"
+											className="text-[#B3B3B3] hover:text-white hover:bg-[#3E3E3E] transition-colors h-8 w-8 sm:h-9 sm:w-9"
 										>
-											<Trash2 className="h-4 w-4" />
+											<Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
 										</Button>
 									</div>
 								</Card>

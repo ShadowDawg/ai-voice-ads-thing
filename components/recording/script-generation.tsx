@@ -219,24 +219,44 @@ export function ScriptGeneration({
 	// Get the active script based on current mode
 	const activeScript = isManualMode ? manualScript : aiScript;
 
+	// Update the useEffect to be more robust and run on all relevant state changes
+	useEffect(() => {
+		// Use setTimeout to ensure DOM is fully updated
+		setTimeout(() => {
+			document.querySelectorAll("textarea").forEach((textarea) => {
+				// Reset height first
+				textarea.style.height = "auto";
+				// Set new height
+				textarea.style.height = `${textarea.scrollHeight}px`;
+			});
+		}, 0);
+	}, [script, aiScript, manualScript, animatedLineCount, isManualMode]);
+
+	// Keep the autoResizeTextarea function for user interactions
+	const autoResizeTextarea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		const textarea = e.target;
+		textarea.style.height = "auto";
+		textarea.style.height = `${textarea.scrollHeight}px`;
+	};
+
 	return (
-		<div className={`p-8 py-0 ${dm_sans.className}`}>
-			<div className="space-y-2">
-				<h2 className="text-3xl font-bold text-white tracking-tight">
+		<div className={`p-4 sm:p-6 md:p-8 py-0 ${dm_sans.className}`}>
+			<div className="space-y-1 sm:space-y-2">
+				<h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
 					Create Your Script
 				</h2>
-				<p className="text-[#B3B3B3] text-lg">
+				<p className="text-[#B3B3B3] text-base sm:text-lg">
 					Write your ad script manually or let AI generate one for you
 					based on your description.
 				</p>
 			</div>
 
 			{/* Script Creation Mode Toggle */}
-			<div className="flex gap-4 mt-6">
+			<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4 sm:mt-6">
 				<Button
 					variant={isManualMode ? "default" : "outline"}
 					onClick={switchToAIMode}
-					className={`flex-1 h-12 rounded-xl transition-colors ${
+					className={`h-10 sm:h-12 rounded-xl transition-colors ${
 						!isManualMode
 							? "bg-cornsilk hover:bg-cornsilk/90 text-black font-medium"
 							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
@@ -247,7 +267,7 @@ export function ScriptGeneration({
 				<Button
 					variant={isManualMode ? "outline" : "default"}
 					onClick={switchToManualMode}
-					className={`flex-1 h-12 rounded-xl transition-colors ${
+					className={`h-10 sm:h-12 rounded-xl transition-colors ${
 						isManualMode
 							? "bg-cornsilk hover:bg-cornsilk/90 text-black font-medium"
 							: "bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700"
@@ -258,8 +278,8 @@ export function ScriptGeneration({
 			</div>
 
 			{/* Specifications Display - Minimalist Version */}
-			<div className="mt-6 border-b border-neutral-700 pb-6">
-				<div className="flex items-center gap-2 mb-3">
+			<div className="mt-4 sm:mt-6 border-b border-neutral-700 pb-4 sm:pb-6">
+				<div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
 					<span className="text-cornsilk text-sm font-medium">
 						Duration
 					</span>
@@ -268,21 +288,21 @@ export function ScriptGeneration({
 						{duration}s
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex flex-col sm:flex-row sm:items-center gap-2">
 					<span className="text-cornsilk text-sm font-medium">
 						Speakers
 					</span>
-					<div className="flex flex-wrap gap-2">
+					<div className="flex flex-wrap gap-2 mt-1 sm:mt-0">
 						{speakers.map((speaker) => (
 							<div
 								key={speaker.id}
-								className="px-3 py-1.5 rounded-2xl bg-neutral-900 text-sm flex items-center gap-2"
+								className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-2xl bg-neutral-900 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2"
 								style={{
 									border: `1px solid ${speaker.color}`,
 								}}
 							>
 								<span
-									className="inline-block w-3 h-3 rounded-full"
+									className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
 									style={{
 										backgroundColor: speaker.color,
 									}}
@@ -296,16 +316,16 @@ export function ScriptGeneration({
 				</div>
 			</div>
 
-			<div className="space-y-6 mt-6">
+			<div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
 				{isManualMode ? (
 					// Manual Script Creation
-					<div className="space-y-6">
-						<div className="flex items-center justify-between">
-							<h3 className="text-lg font-medium text-cornsilk">
+					<div className="space-y-4 sm:space-y-6">
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+							<h3 className="text-base sm:text-lg font-medium text-cornsilk">
 								Your Script
 							</h3>
-							<div className="flex flex-col items-end gap-1">
-								<div className="text-sm text-gray-400">
+							<div className="flex flex-col items-start sm:items-end gap-1">
+								<div className="text-xs sm:text-sm text-gray-400">
 									Estimated Duration:{" "}
 									{getTotalDuration(
 										manualScript?.lines || []
@@ -313,7 +333,7 @@ export function ScriptGeneration({
 									s / {duration}s
 								</div>
 								<div
-									className={`text-sm ${
+									className={`text-xs sm:text-sm ${
 										getTotalWords(
 											manualScript?.lines || []
 										) > wordLimit
@@ -328,7 +348,7 @@ export function ScriptGeneration({
 							</div>
 						</div>
 
-						<div className="space-y-6">
+						<div className="space-y-4 sm:space-y-6">
 							<AnimatePresence>
 								{manualScript?.lines?.map(
 									(line: VoiceLine, index: number) => (
@@ -342,16 +362,16 @@ export function ScriptGeneration({
 												marginBottom: 0,
 											}}
 											transition={{ duration: 0.3 }}
-											className="space-y-3"
+											className="space-y-2 sm:space-y-3"
 										>
-											<div className="flex items-center gap-3">
-												<div className="flex items-center gap-2 bg-neutral-800 text-cornsilk text-sm rounded-lg px-3 py-2 border border-neutral-700 focus-within:border-cornsilk focus-within:ring-cornsilk">
+											<div className="flex items-center gap-2 sm:gap-3">
+												<div className="flex items-center gap-1 sm:gap-2 bg-neutral-800 text-cornsilk text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-neutral-700 focus-within:border-cornsilk focus-within:ring-cornsilk">
 													{speakers.find(
 														(s) =>
 															s.role === line.role
 													) && (
 														<span
-															className="inline-block w-3 h-3 rounded-full"
+															className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
 															style={{
 																backgroundColor:
 																	speakers.find(
@@ -377,7 +397,7 @@ export function ScriptGeneration({
 															);
 															onChange(newScript);
 														}}
-														className="bg-transparent text-cornsilk border-none focus:ring-0 focus:outline-none"
+														className="bg-transparent text-cornsilk border-none focus:ring-0 focus:outline-none text-xs sm:text-sm"
 													>
 														{speakers.map(
 															(speaker) => (
@@ -404,7 +424,7 @@ export function ScriptGeneration({
 													onClick={() =>
 														removeLine(index)
 													}
-													className="text-sec hover:text-cornsilk hover:bg-neutral-800 rounded-lg"
+													className="text-sec hover:text-cornsilk hover:bg-neutral-800 rounded-lg text-xs sm:text-sm px-2 py-1 h-auto"
 												>
 													Remove
 												</Button>
@@ -431,15 +451,15 @@ export function ScriptGeneration({
 														);
 														onChange(newScript);
 													}
+													autoResizeTextarea(e);
 												}}
-												className="min-h-[80px] resize-none bg-transparent border-1px-solid border-sec/60 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
-												style={{
-													fontSize: "2rem",
-													lineHeight: "1.5",
-												}}
+												onFocus={(e) =>
+													autoResizeTextarea(e)
+												}
+												className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-1px-solid border-sec/60 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-lg sm:text-2xl leading-[1.4] sm:leading-[1.5]"
 												placeholder="Speaker's line..."
 											/>
-											<div className="flex justify-between text-xs text-gray-400">
+											<div className="flex justify-between text-[10px] sm:text-xs text-gray-400">
 												<span>
 													Words:{" "}
 													{
@@ -470,7 +490,7 @@ export function ScriptGeneration({
 						<Button
 							onClick={addNewLine}
 							variant="outline"
-							className="w-full h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors"
+							className="w-full h-10 sm:h-12 bg-neutral-800 hover:bg-neutral-700 text-cornsilk border-neutral-700 rounded-xl transition-colors text-sm sm:text-base"
 							disabled={
 								getTotalDuration(manualScript?.lines || []) >=
 									duration ||
@@ -483,9 +503,9 @@ export function ScriptGeneration({
 					</div>
 				) : (
 					// Script Generation (AI Mode)
-					<div className="space-y-6">
+					<div className="space-y-4 sm:space-y-6">
 						<div>
-							<label className="block text-sm font-medium mb-3 text-gray-400">
+							<label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3 text-gray-400">
 								Describe your advertisement (Script will be
 								limited to {wordLimit} words)
 							</label>
@@ -503,19 +523,19 @@ export function ScriptGeneration({
 										generateScript();
 									}
 								}}
-								className="h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl"
+								className="h-10 sm:h-12 bg-neutral-800 border-neutral-700 text-cornsilk placeholder:text-gray-400 focus:border-cornsilk focus:ring-cornsilk rounded-xl text-sm sm:text-base"
 							/>
 						</div>
 
 						<Button
 							onClick={generateScript}
 							disabled={isGenerating || !prompt.trim()}
-							className="w-full h-12 text-base font-medium rounded-xl bg-cornsilk text-black hover:bg-cornsilk/90 transition-colors"
+							className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium rounded-xl bg-cornsilk text-black hover:bg-cornsilk/90 transition-colors"
 							variant="default"
 						>
 							{isGenerating ? (
 								<>
-									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									<Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
 									Writing your script...
 								</>
 							) : (
@@ -526,11 +546,11 @@ export function ScriptGeneration({
 						{aiScript &&
 							aiScript.lines &&
 							aiScript.lines.length > 0 && (
-								<div className="space-y-6 mt-8">
-									<h3 className="text-lg font-medium text-cornsilk">
+								<div className="space-y-4 sm:space-y-6 mt-4 sm:mt-8">
+									<h3 className="text-base sm:text-lg font-medium text-cornsilk">
 										Your Script
 									</h3>
-									<div className="space-y-6">
+									<div className="space-y-4 sm:space-y-6">
 										<AnimatePresence>
 											{aiScript.lines
 												.slice(0, animatedLineCount)
@@ -552,17 +572,17 @@ export function ScriptGeneration({
 															transition={{
 																duration: 0.3,
 															}}
-															className="space-y-3"
+															className="space-y-2 sm:space-y-3"
 														>
-															<div className="flex items-center gap-3">
-																<span className="px-3 py-1.5 rounded-lg bg-neutral-900 text-sm font-medium text-sec/60 flex items-center gap-2">
+															<div className="flex items-center gap-2 sm:gap-3">
+																<span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-neutral-900 text-xs sm:text-sm font-medium text-sec/60 flex items-center gap-1.5 sm:gap-2">
 																	{speakers.find(
 																		(s) =>
 																			s.role ===
 																			line.role
 																	) && (
 																		<span
-																			className="inline-block w-3 h-3 rounded-full"
+																			className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
 																			style={{
 																				backgroundColor:
 																					speakers.find(
@@ -603,14 +623,16 @@ export function ScriptGeneration({
 																	onChange(
 																		newScript
 																	);
+																	autoResizeTextarea(
+																		e
+																	);
 																}}
-																className="min-h-[80px] resize-none bg-transparent border-0 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-3"
-																style={{
-																	fontSize:
-																		"2rem",
-																	lineHeight:
-																		"1.5",
-																}}
+																onFocus={(e) =>
+																	autoResizeTextarea(
+																		e
+																	)
+																}
+																className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-0 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-lg sm:text-2xl leading-[1.4] sm:leading-[1.5]"
 																placeholder="Speaker's line..."
 															/>
 														</motion.div>

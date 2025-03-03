@@ -44,19 +44,19 @@ export default async function Studio() {
 		console.timeEnd(pageLoadLabel);
 
 		return (
-			<div className="min-h-screen bg-black p-8">
-				<div className="max-w-7xl mx-auto space-y-12">
-					<div className="p-8">
+			<div className="min-h-screen bg-black px-4 py-6 sm:p-8">
+				<div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+					<div className="p-4 sm:p-8">
 						<HomeHeader />
 					</div>
 
-					<div className="flex justify-center my-12">
+					<div className="flex justify-center my-6 sm:my-12">
 						<HomeContent />
 					</div>
 
-					<div className="bg-black rounded-3xl p-8">
+					<div className="bg-black rounded-xl sm:rounded-3xl p-4 sm:p-8">
 						<h2
-							className={`${dm_sans.className} text-cornsilk text-3xl mb-8`}
+							className={`${dm_sans.className} text-cornsilk text-2xl sm:text-3xl mb-4 sm:mb-8`}
 						>
 							Your Recordings
 						</h2>

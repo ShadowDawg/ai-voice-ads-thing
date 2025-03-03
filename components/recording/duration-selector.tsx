@@ -15,18 +15,18 @@ interface DurationSelectorProps {
 
 export function DurationSelector({ value, onChange }: DurationSelectorProps) {
 	return (
-		<div className={`p-8 ${dm_sans.className}`}>
+		<div className={`p-4 sm:p-6 md:p-8 ${dm_sans.className}`}>
 			<div className="space-y-2">
-				<h2 className="text-3xl text-white tracking-tight font-bold">
+				<h2 className="text-2xl sm:text-3xl text-white tracking-tight font-bold">
 					Select Ad Duration
 				</h2>
-				<p className="text-[#B3B3B3] text-lg">
+				<p className="text-[#B3B3B3] text-base sm:text-lg">
 					Choose how long your voice ad will be. Different durations
 					work better for different platforms and purposes.
 				</p>
 			</div>
 
-			<div className="grid grid-cols-2 gap-4 mt-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6 md:mt-8">
 				{DURATIONS.map((duration) => (
 					<Button
 						key={duration.value}
@@ -34,15 +34,15 @@ export function DurationSelector({ value, onChange }: DurationSelectorProps) {
 							value === duration.value ? "default" : "outline"
 						}
 						onClick={() => onChange(duration.value)}
-						className={`h-28 relative group transition-all duration-200 hover:scale-[1.02] ${
+						className={`h-20 sm:h-24 md:h-28 relative group transition-all duration-200 hover:scale-[1.02] ${
 							value === duration.value
-								? "bg-cornsilk  text-white hover:bg-cornsilk/80"
+								? "bg-cornsilk text-white hover:bg-cornsilk/80"
 								: "bg-[#282828] border-[#404040] hover:bg-[#333333] hover:border-[#505050]"
 						}`}
 					>
 						<div className="text-center">
 							<div
-								className={`text-xl font-bold mb-2 ${
+								className={`text-lg sm:text-xl font-bold mb-1 sm:mb-2 ${
 									value === duration.value
 										? "text-black"
 										: "text-white"
@@ -51,7 +51,7 @@ export function DurationSelector({ value, onChange }: DurationSelectorProps) {
 								{duration.label}
 							</div>
 							<div
-								className={`text-sm ${
+								className={`text-xs sm:text-sm ${
 									value === duration.value
 										? "text-black/80"
 										: "text-[#B3B3B3]"

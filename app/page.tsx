@@ -11,14 +11,14 @@ export default function Home() {
 		<div className="bg-black">
 			<main>
 				{/* Hero Section */}
-				<section className="flex flex-col items-center justify-center text-center h-screen">
+				<section className="flex flex-col items-center justify-center text-center min-h-[90vh] px-4 py-10 sm:h-screen">
 					<h1
-						className={`${dm_serif.className} text-4xl sm:text-4xl md:text-5xl lg:text-7xl text-vivid tracking-normal mb-10`}
+						className={`${dm_serif.className} text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-vivid tracking-normal mb-6 sm:mb-10`}
 					>
 						Addie
 					</h1>
 					<p
-						className={`${dm_sans.className} max-w-[1000px] text-3xl sm:text-3xl md:text-5xl lg:text-7xl text-sec/50 mb-16`}
+						className={`${dm_sans.className} max-w-[1000px] text-xl sm:text-3xl md:text-4xl lg:text-7xl text-sec/50 mb-10 sm:mb-16`}
 					>
 						Create{" "}
 						<span className="text-sec">beautiful voice ads</span>{" "}
@@ -28,29 +28,18 @@ export default function Home() {
 					<Button
 						asChild
 						size="lg"
-						className="mb-16 px-12 text-2xl h-14 rounded-full bg-vivid hover:bg-vivid hover:scale-105 transition-all text-black"
+						className="mb-10 sm:mb-16 px-8 sm:px-12 text-lg sm:text-2xl h-12 sm:h-14 rounded-full bg-vivid hover:bg-vivid hover:scale-105 transition-all text-black"
 					>
 						<Link href="/auth">Get Started</Link>
 					</Button>
 				</section>
 
 				{/* How it works section */}
-				<section className="py-16 md:py-24">
+				<section className="py-12 md:py-24">
 					<div className="container mx-auto px-4">
-						{/* <div className="flex items-center justify-center mb-6">
-							<div className="bg-vivid/20 rounded-full p-2 mr-3">
-								<span className="text-vivid text-xl">⚡</span>
-							</div>
-							<h2
-								className={`${dm_sans.className} text-2xl md:text-4xl lg:text-5xl text-vivid`}
-							>
-								How it works
-							</h2>
-						</div> */}
-
-						<div className="text-center mb-10 md:mb-16">
+						<div className="text-center mb-8 md:mb-16">
 							<h3
-								className={`${dm_serif.className} text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6`}
+								className={`${dm_serif.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl text-white mb-6`}
 							>
 								Top-notch designs,
 								<br className="hidden sm:block" />
@@ -59,11 +48,11 @@ export default function Home() {
 						</div>
 
 						{/* Cards container */}
-						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 							{/* Step 1 Card */}
-							<div className="bg-black/40 border border-gray-800 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
+							<div className="bg-black/40 border border-gray-800 rounded-xl md:rounded-3xl p-4 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
 								{/* Visual content area - Duration and Speakers Selection */}
-								<div className="flex-1 flex flex-col items-center justify-center mb-6 md:mb-8 space-y-4">
+								<div className="flex-1 flex flex-col items-center justify-center mb-4 md:mb-8 space-y-3 md:space-y-4">
 									{/* Duration selection - horizontal scroll peek effect */}
 									<div className="w-full relative">
 										<div className="text-sm text-sec mb-2">
@@ -72,24 +61,24 @@ export default function Home() {
 										<div className="flex space-x-2 overflow-hidden">
 											{/* First option partially visible */}
 											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
-												<div className="font-semibold text-sm md:text-base">
+												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													15s
 												</div>
 											</div>
 											{/* Middle options fully visible */}
 											<div className="shrink-0 w-[30%] bg-[#fffbeb] text-black rounded-lg p-2 text-center">
-												<div className="font-semibold text-sm md:text-base">
+												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													30s
 												</div>
 											</div>
 											{/* Last option partially visible */}
 											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
-												<div className="font-semibold text-sm md:text-base">
+												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													45s
 												</div>
 											</div>
 											<div className="shrink-0 w-[25%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
-												<div className="font-semibold text-sm md:text-base">
+												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													60s
 												</div>
 											</div>
@@ -97,7 +86,7 @@ export default function Home() {
 									</div>
 
 									{/* Speakers selection - with peek effect */}
-									<div className="w-full mt-4">
+									<div className="w-full mt-3 md:mt-4">
 										<div className="text-sm text-sec mb-2">
 											Speakers
 										</div>
@@ -106,30 +95,30 @@ export default function Home() {
 											<div className="flex space-x-2 text-sec">
 												<div className="shrink-0 w-[50%] border border-[#14a589] bg-black/60 rounded-lg p-2 flex items-center justify-between">
 													<div className="flex items-center">
-														<div className="w-3 h-3 bg-[#3bbfaf] rounded-full mr-2"></div>
-														<span className="text-xs md:text-sm font-medium">
+														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-[#3bbfaf] rounded-full mr-1 sm:mr-2"></div>
+														<span className="text-xs md:text-sm font-medium truncate">
 															Male Narrator
 														</span>
 													</div>
 													<svg
 														viewBox="0 0 24 24"
 														fill="currentColor"
-														className="w-4 h-4"
+														className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
 													>
 														<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
 													</svg>
 												</div>
 												<div className="shrink-0 w-[60%] border border-zinc-800 bg-black/60 rounded-lg p-2 flex items-center justify-between hover:border-zinc-600 transition-colors">
-													<div className="flex items-center">
-														<div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-														<span className="text-xs md:text-sm">
+													<div className="flex items-center overflow-hidden">
+														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full mr-1 sm:mr-2"></div>
+														<span className="text-xs md:text-sm truncate">
 															Female Narrator
 														</span>
 													</div>
 													<svg
 														viewBox="0 0 24 24"
 														fill="currentColor"
-														className="w-4 h-4"
+														className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
 													>
 														<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
 													</svg>
@@ -139,23 +128,23 @@ export default function Home() {
 											{/* Second speakers row (partially visible) */}
 											<div className="flex space-x-2 mt-2 text-sec">
 												<div className="shrink-0 w-[60%] border border-zinc-800 bg-black/60 rounded-lg p-2 flex items-center justify-between hover:border-zinc-600 transition-colors">
-													<div className="flex items-center">
-														<div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-														<span className="text-xs md:text-sm">
+													<div className="flex items-center overflow-hidden">
+														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full mr-1 sm:mr-2"></div>
+														<span className="text-xs md:text-sm truncate">
 															Young Woman
 														</span>
 													</div>
 													<svg
 														viewBox="0 0 24 24"
 														fill="currentColor"
-														className="w-4 h-4"
+														className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
 													>
 														<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
 													</svg>
 												</div>
 												<div className="shrink-0 w-[60%] border border-zinc-800 bg-black/60 rounded-lg p-2 flex items-center justify-between hover:border-zinc-600 transition-colors">
 													<div className="flex items-center overflow-hidden">
-														<div className="w-3 h-3 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full mr-1 sm:mr-2 flex-shrink-0"></div>
 														<span className="text-xs md:text-sm truncate">
 															Young Man
 														</span>
@@ -163,7 +152,7 @@ export default function Home() {
 													<svg
 														viewBox="0 0 24 24"
 														fill="currentColor"
-														className="w-4 h-4 flex-shrink-0"
+														className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
 													>
 														<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
 													</svg>
@@ -176,12 +165,12 @@ export default function Home() {
 								{/* Text content at bottom */}
 								<div>
 									<h4
-										className={`${dm_sans.className} text-xl md:text-2xl text-white mb-2 md:mb-4`}
+										className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-white mb-2 md:mb-4`}
 									>
 										Tell us your vision
 									</h4>
 									<p
-										className={`${dm_sans.className} text-base md:text-lg text-sec`}
+										className={`${dm_sans.className} text-sm sm:text-base md:text-lg text-sec`}
 									>
 										Choose ad duration and speakers that
 										best suit your brand.
@@ -190,15 +179,15 @@ export default function Home() {
 							</div>
 
 							{/* Step 2 Card */}
-							<div className="bg-black/40 border border-gray-800 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
+							<div className="bg-black/40 border border-gray-800 rounded-xl md:rounded-3xl p-4 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
 								{/* Visual content area - Input description example */}
-								<div className="flex-1 flex flex-col justify-center mb-6 md:mb-8">
-									<div className="bg-black/60 border border-zinc-800 rounded-lg p-4 text-white">
+								<div className="flex-1 flex flex-col justify-center mb-4 md:mb-8">
+									<div className="bg-black/60 border border-zinc-800 rounded-lg p-3 sm:p-4 text-white">
 										<div className="flex items-start">
-											<div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-vivid/20 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+											<div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-vivid/20 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2 sm:mr-3">
 												<svg
 													viewBox="0 0 24 24"
-													className="w-3 h-3 md:w-4 md:h-4 text-vivid"
+													className="w-2.5 h-2.5 md:w-4 md:h-4 text-vivid"
 												>
 													<path
 														fill="currentColor"
@@ -206,7 +195,7 @@ export default function Home() {
 													/>
 												</svg>
 											</div>
-											<p className="text-sec text-base md:text-lg leading-relaxed">
+											<p className="text-sec text-sm sm:text-base md:text-lg leading-relaxed">
 												An advertisement for the new
 												IKEA kids furniture collection
 											</p>
@@ -217,12 +206,12 @@ export default function Home() {
 								{/* Text content at bottom */}
 								<div>
 									<h4
-										className={`${dm_sans.className} text-xl md:text-2xl text-white mb-2 md:mb-4`}
+										className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-white mb-2 md:mb-4`}
 									>
 										Describe your ad
 									</h4>
 									<p
-										className={`${dm_sans.className} text-base md:text-lg text-sec`}
+										className={`${dm_sans.className} text-sm sm:text-base md:text-lg text-sec`}
 									>
 										Tell us about your brand and what
 										message you want to convey in your ad.
@@ -231,12 +220,15 @@ export default function Home() {
 							</div>
 
 							{/* Step 3 Card */}
-							<div className="bg-black/40 border border-gray-800 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
+							<div className="bg-black/40 border border-gray-800 rounded-xl md:rounded-3xl p-4 md:p-8 hover:border-vivid/30 transition-all flex flex-col">
 								{/* Visual content area - Playback Demo */}
-								<div className="flex-1 flex flex-col justify-center mb-6 md:mb-8">
+								<div className="flex-1 flex flex-col justify-center mb-4 md:mb-8">
 									<div
 										className="rounded-xl overflow-hidden border border-gray-800"
-										style={{ height: "300px" }}
+										style={{
+											height: "250px",
+											maxHeight: "40vh",
+										}}
 									>
 										<PlaybackDemo
 											jsonPath="/example_recordings/recording-UCdMzmUVLdWwD6yEzstsZVrHeZo2-o9pp4Nv4RF7LZIRXZrq2.json"
@@ -248,12 +240,12 @@ export default function Home() {
 								{/* Text content at bottom */}
 								<div>
 									<h4
-										className={`${dm_sans.className} text-xl md:text-2xl text-white mb-2 md:mb-4`}
+										className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-white mb-2 md:mb-4`}
 									>
 										Get your voice ad
 									</h4>
 									<p
-										className={`${dm_sans.className} text-base md:text-lg text-sec`}
+										className={`${dm_sans.className} text-sm sm:text-base md:text-lg text-sec`}
 									>
 										Your professional voice ad is generated
 										automatically using AI technology.
@@ -265,27 +257,14 @@ export default function Home() {
 				</section>
 
 				{/* Never spend money section */}
-				<section className="min-h-[60vh] sm:h-screen container mx-auto px-4 py-16 sm:py-0 flex items-center justify-center">
+				<section className="min-h-[60vh] container mx-auto px-4 py-12 sm:py-16 md:py-0 sm:h-screen flex items-center justify-center">
 					<div className="flex flex-col items-center text-center">
-						{/* Top decorative dots with a slight rotation */}
-						{/* <div className="mb-4 hidden sm:block">
-							<svg
-								viewBox="0 0 24 24"
-								className="w-12 h-12 sm:w-16 sm:h-16 text-vivid/50 rotate-6 opacity-50"
-							>
-								<path
-									fill="currentColor"
-									d="M8,11A2,2 0 0,1 10,13A2,2 0 0,1 8,15A2,2 0 0,1 6,13A2,2 0 0,1 8,11M10.5,18L12,16L10.5,14L9,16L10.5,18M16,11A2,2 0 0,1 18,13A2,2 0 0,1 16,15A2,2 0 0,1 14,13A2,2 0 0,1 16,11M21,13C21,16.87 17.87,20 14,20L13,20L12,22L11,20L10,20C6.13,20 3,16.87 3,13C3,9.13 6.13,6 10,6H14C17.87,6 21,9.13 21,13M14.4,12L16,10.8L14.4,9.6L13.2,11.2L14.4,12M9.6,12L11.2,10.8L9.6,9.6L8.4,11.2L9.6,12Z"
-								/>
-							</svg>
-						</div> */}
-
-						<div className="flex items-center">
+						<div className="flex flex-col sm:flex-row items-center">
 							{/* Left decorative mic icon with negative rotation */}
 							<div className="hidden sm:block mr-4">
 								<svg
 									viewBox="0 0 24 24"
-									className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid opacity-20 -rotate-12"
+									className="w-12 h-12 md:w-16 md:h-16 lg:w-32 lg:h-32 text-vivid opacity-20 -rotate-12"
 								>
 									<path
 										fill="currentColor"
@@ -296,14 +275,14 @@ export default function Home() {
 
 							<div>
 								<h2
-									className={`${dm_sans.className} text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-3xl`}
+									className={`${dm_sans.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-white mb-4 max-w-3xl`}
 								>
 									Never spend{" "}
 									<span className="text-vivid">$$$</span> on
 									voice actors ever again.
 								</h2>
 								<p
-									className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-sec mb-10 max-w-2xl`}
+									className={`${dm_sans.className} text-base sm:text-lg md:text-xl lg:text-2xl text-sec mb-8 sm:mb-10 max-w-2xl`}
 								>
 									Professional voiceovers without the
 									professional invoices.
@@ -314,7 +293,7 @@ export default function Home() {
 							<div className="hidden sm:block ml-4">
 								<svg
 									viewBox="0 0 24 24"
-									className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 text-vivid opacity-20 rotate-12"
+									className="w-12 h-12 md:w-16 md:h-16 lg:w-32 lg:h-32 text-vivid opacity-20 rotate-12"
 								>
 									<path
 										fill="currentColor"
@@ -325,17 +304,18 @@ export default function Home() {
 						</div>
 
 						{/* Action buttons */}
-						<div className="flex flex-col sm:flex-row gap-4 mb-10">
+						<div className="flex flex-col sm:flex-row gap-4 mb-8 sm:mb-10 w-full sm:w-auto">
 							<Button
 								variant="outline"
 								size="lg"
 								asChild
-								className="bg-black rounded-full border-sec/30 text-sec hover:bg-sec/10 hover:text-white transition-all"
+								className="bg-black rounded-full border-sec/30 text-sec hover:bg-sec/10 hover:text-white transition-all text-xs sm:text-base py-2 sm:py-3 px-4 sm:px-6"
 							>
 								<a
 									href="https://cal.com/dev-mandal/15min"
 									target="_blank"
 									rel="noopener noreferrer"
+									className="w-full sm:w-auto"
 								>
 									Talk to the dude who built this
 								</a>
@@ -343,50 +323,39 @@ export default function Home() {
 							<Button
 								asChild
 								size="lg"
-								className="rounded-full bg-vivid hover:bg-vivid hover:scale-105 transition-all text-black"
+								className="rounded-full bg-vivid hover:bg-vivid hover:scale-105 transition-all text-black text-xs sm:text-base py-2 sm:py-3 px-4 sm:px-6"
 							>
-								<Link href="/auth">Try Addie for free</Link>
+								<Link href="/auth" className="w-full sm:w-auto">
+									Try Addie for free
+								</Link>
 							</Button>
 						</div>
-
-						{/* Bottom decorative element */}
-						{/* <div className="mt-4 hidden sm:block">
-							<svg
-								viewBox="0 0 24 24"
-								className="w-16 h-16 sm:w-24 sm:h-24 text-vivid/50 rotate-45 opacity-50"
-							>
-								<path
-									fill="currentColor"
-									d="M12,1C7,1 3,5 3,10V17A3,3 0 0,0 6,20H9V12H5V10A7,7 0 0,1 12,3A7,7 0 0,1 19,10V12H15V20H18A3,3 0 0,0 21,17V10C21,5 16.97,1 12,1Z"
-								/>
-							</svg>
-						</div> */}
 					</div>
 				</section>
 
 				{/* Footer */}
-				<footer className="border-t border-zinc-800 pt-12 relative overflow-hidden">
+				<footer className="border-t border-zinc-800 pt-8 sm:pt-12 relative overflow-hidden">
 					{/* Top footer bar */}
-					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-12">
+					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-12">
 						<div className="mb-4 sm:mb-0">
 							<h3
-								className={`${dm_serif.className} text-8xl text-vivid`}
+								className={`${dm_serif.className} text-5xl sm:text-6xl md:text-8xl text-vivid`}
 							>
 								Addie
 							</h3>
 						</div>
 						<div
-							className={`${dm_sans.className} text-sec text-lg md:text-3xl`}
+							className={`${dm_sans.className} text-sec text-lg sm:text-xl md:text-3xl`}
 						>
 							Beautiful voice ads in minutes.
 						</div>
 					</div>
 
 					{/* Main footer content */}
-					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-16">
-						<div className="mb-6 sm:mb-0">
+					<div className="container mx-auto px-4 lg:px-2 flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-16">
+						<div className="mb-4 sm:mb-0">
 							<p
-								className={`${dm_sans.className} text-zinc-500 text-sm`}
+								className={`${dm_sans.className} text-zinc-500 text-xs sm:text-sm`}
 							>
 								{/* © {new Date().getFullYear()} Addie. All rights
 								reserved. */}
@@ -394,7 +363,7 @@ export default function Home() {
 						</div>
 
 						{/* Social media links and operational status */}
-						<div className="flex flex-col items-end">
+						<div className="flex flex-col items-center sm:items-end">
 							{/* Social media links */}
 							<div className="flex space-x-4 mb-4">
 								<a
@@ -403,7 +372,7 @@ export default function Home() {
 								>
 									<svg
 										viewBox="0 0 24 24"
-										className="w-6 h-6"
+										className="w-5 h-5 sm:w-6 sm:h-6"
 									>
 										<path
 											fill="currentColor"
@@ -417,7 +386,7 @@ export default function Home() {
 								>
 									<svg
 										viewBox="0 0 24 24"
-										className="w-6 h-6"
+										className="w-5 h-5 sm:w-6 sm:h-6"
 									>
 										<path
 											fill="currentColor"
@@ -438,9 +407,9 @@ export default function Home() {
 					</div>
 
 					{/* Large background text - properly positioned at bottom with half cut off */}
-					<div className="w-full h-[12rem] md:h-[18rem] overflow-hidden">
+					<div className="w-full h-[8rem] sm:h-[12rem] md:h-[18rem] overflow-hidden">
 						<span
-							className={`${dm_serif.className} text-[20rem] md:text-[30rem] text-sec/10 leading-none block text-center`}
+							className={`${dm_serif.className} text-[10rem] sm:text-[15rem] md:text-[20rem] lg:text-[30rem] text-sec/10 leading-none block text-center`}
 						>
 							Addie
 						</span>
