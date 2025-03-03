@@ -18,7 +18,7 @@ export default function Home() {
 						Addie
 					</h1>
 					<p
-						className={`${dm_sans.className} max-w-[1000px] text-xl sm:text-3xl md:text-4xl lg:text-7xl text-sec/50 mb-10 sm:mb-16`}
+						className={`${dm_sans.className} max-w-[1000px] text-3xl sm:text-3xl md:text-4xl lg:text-7xl text-sec/50 mb-10 sm:mb-16`}
 					>
 						Create{" "}
 						<span className="text-sec">beautiful voice ads</span>{" "}
@@ -60,7 +60,7 @@ export default function Home() {
 										</div>
 										<div className="flex space-x-2 overflow-hidden">
 											{/* First option partially visible */}
-											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
+											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center hover:border-sec/50 transition-all">
 												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													15s
 												</div>
@@ -72,12 +72,12 @@ export default function Home() {
 												</div>
 											</div>
 											{/* Last option partially visible */}
-											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
+											<div className="shrink-0 w-[30%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center hover:border-sec/50 transition-all">
 												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													45s
 												</div>
 											</div>
-											<div className="shrink-0 w-[25%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center">
+											<div className="shrink-0 w-[25%] bg-zinc-900 text-white border border-zinc-800 rounded-lg p-2 text-center hover:border-sec/50 transition-all">
 												<div className="font-semibold text-xs sm:text-sm md:text-base">
 													60s
 												</div>
@@ -93,7 +93,7 @@ export default function Home() {
 										<div className="overflow-hidden">
 											{/* Visible speakers row */}
 											<div className="flex space-x-2 text-sec">
-												<div className="shrink-0 w-[50%] border border-[#14a589] bg-black/60 rounded-lg p-2 flex items-center justify-between">
+												<div className="shrink-0 w-[50%] border border-[#3bbfaf] bg-black/60 rounded-lg p-2 flex items-center justify-between">
 													<div className="flex items-center">
 														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-[#3bbfaf] rounded-full mr-1 sm:mr-2"></div>
 														<span className="text-xs md:text-sm font-medium truncate">
@@ -142,7 +142,7 @@ export default function Home() {
 														<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
 													</svg>
 												</div>
-												<div className="shrink-0 w-[60%] border border-zinc-800 bg-black/60 rounded-lg p-2 flex items-center justify-between hover:border-zinc-600 transition-colors">
+												<div className="shrink-0 w-[60%] border border-green-300 bg-black/60 rounded-lg p-2 flex items-center justify-between ">
 													<div className="flex items-center overflow-hidden">
 														<div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full mr-1 sm:mr-2 flex-shrink-0"></div>
 														<span className="text-xs md:text-sm truncate">
