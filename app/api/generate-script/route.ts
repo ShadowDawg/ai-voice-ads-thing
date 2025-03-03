@@ -19,8 +19,8 @@ Speaker details:
 ${speakers.map((speaker: any) => `- ${speaker.role}`).join("\n")}
 
 Important constraints:
-- The script MUST NOT exceed ${duration * 2} words in total
-- Each line should take roughly 3-4 seconds to speak
+- The script MUST NOT exceed ${duration * 2.5} words in total
+- Each line should take roughly 10-12 seconds to speak
 - Keep the total duration in mind (${duration} seconds)
 
 Format the script with speaker names followed by their lines.`;
