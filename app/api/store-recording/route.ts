@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { adminAuth } from "@/lib/firebase/admin";
 import { StoredRecording, VoiceLineForPlayback } from "@/types/voice-types";
+import { PostHog } from "posthog-node";
 
 const db = getFirestore();
+// Initialize PostHog with your API key
+const posthog = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
+	host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+});
 
 export async function POST(request: Request) {
 	try {
@@ -32,6 +37,14 @@ export async function POST(request: Request) {
 			requestData = JSON.parse(requestText);
 		} catch (e) {
 			console.error("Error parsing JSON:", e);
+			posthog.capture({
+				distinctId: userId,
+				event: "recording_generation_error",
+				properties: {
+					error: "Invalid JSON in request body",
+					userId: userId,
+				},
+			});
 			return NextResponse.json(
 				{ error: "Invalid JSON in request body" },
 				{ status: 400 }
@@ -66,6 +79,14 @@ export async function POST(request: Request) {
 		// Check if script.lines exists and is an array
 		if (!script || !script.lines || !Array.isArray(script.lines)) {
 			console.error("Invalid script structure:", script);
+			posthog.capture({
+				distinctId: userId,
+				event: "recording_generation_error",
+				properties: {
+					error: "Invalid script structure",
+					userId: userId,
+				},
+			});
 			return NextResponse.json(
 				{ error: "Invalid script structure" },
 				{ status: 400 }
@@ -75,6 +96,14 @@ export async function POST(request: Request) {
 		// Check if voiceLines is an array
 		if (!voiceLines || !Array.isArray(voiceLines)) {
 			console.error("Invalid voiceLines structure:", voiceLines);
+			posthog.capture({
+				distinctId: userId,
+				event: "recording_generation_error",
+				properties: {
+					error: "Invalid voiceLines structure",
+					userId: userId,
+				},
+			});
 			return NextResponse.json(
 				{ error: "Invalid voiceLines structure" },
 				{ status: 400 }
@@ -224,6 +253,21 @@ export async function POST(request: Request) {
 
 			console.log("recordingRef:", recordingRef);
 
+			// Track successful recording generation
+			posthog.capture({
+				distinctId: userId,
+				event: "recording_generated",
+				properties: {
+					userId: userId,
+					recordingId: recordingRef.id,
+					title: title,
+					durationInSeconds: duration,
+					actualDurationInSeconds: actualDuration,
+					lineCount: voiceLines.length,
+					speakerCount: speakers?.length || 0,
+				},
+			});
+
 			return NextResponse.json({
 				id: recordingRef.id,
 				...recordingData,
@@ -232,6 +276,17 @@ export async function POST(request: Request) {
 			console.error("Error creating recordingData:", error);
 			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error";
+
+			posthog.capture({
+				distinctId: userId,
+				event: "recording_generation_error",
+				properties: {
+					error: errorMessage,
+					userId: userId,
+					step: "creating_recording_data",
+				},
+			});
+
 			return NextResponse.json(
 				{ error: "Failed to process recording data: " + errorMessage },
 				{ status: 500 }
@@ -241,6 +296,19 @@ export async function POST(request: Request) {
 		console.error("Error storing recording:", error);
 		const errorMessage =
 			error instanceof Error ? error.message : "Unknown error";
+
+		// Use a generic ID for authentication errors
+		const userId = "server_error";
+
+		posthog.capture({
+			distinctId: userId,
+			event: "recording_generation_error",
+			properties: {
+				error: errorMessage,
+				step: "auth_or_general_error",
+			},
+		});
+
 		return NextResponse.json(
 			{ error: "Failed to store recording: " + errorMessage },
 			{ status: 500 }

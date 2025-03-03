@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { dm_sans } from "@/lib/fonts/fonts";
+import { usePostHog } from "posthog-js/react";
 
 // Define the form schema
 const signUpSchema = z.object({
@@ -32,6 +33,7 @@ export default function AuthForm() {
 	const [isSignUp, setIsSignUp] = useState(true);
 	const router = useRouter();
 	const { user, signInWithGoogle, loading } = useAuth();
+	const posthog = usePostHog();
 
 	// Client-side redirect if already signed in.
 	// Note: Always rely on the secure, server-side cookie check for authentication.
@@ -53,6 +55,8 @@ export default function AuthForm() {
 
 	const handleGoogleLogin = async () => {
 		try {
+			posthog.capture("login_attempt", { method: "google" });
+
 			const userCredential = await signInWithGoogle();
 			if (!userCredential?.user) {
 				throw new Error("Sign in failed - no user data received");
@@ -75,8 +79,17 @@ export default function AuthForm() {
 			}
 
 			// Only redirect after the session is set
+			posthog.capture("login_success", {
+				method: "google",
+				userId: userCredential.user.uid,
+			});
 			router.push("/home");
 		} catch (error) {
+			posthog.capture("login_error", {
+				method: "google",
+				error: error instanceof Error ? error.message : "Unknown error",
+			});
+
 			toast({
 				variant: "destructive",
 				title: "Error",
@@ -87,6 +100,12 @@ export default function AuthForm() {
 
 	const handleGoogleSignUp = async (data: SignUpForm) => {
 		try {
+			posthog.capture("signup_attempt", {
+				method: "google",
+				firstName: data.firstName,
+				lastName: data.lastName,
+			});
+
 			const userCredential = await signInWithGoogle();
 			if (!userCredential?.user) {
 				throw new Error("Sign in failed - no user data received");
@@ -118,11 +137,28 @@ export default function AuthForm() {
 					...userCredential.user,
 					displayName: `${data.firstName} ${data.lastName}`,
 				});
+
+				posthog.capture("signup_success", {
+					method: "google",
+					userId: userCredential.user.uid,
+					isNewUser: true,
+				});
+			} else {
+				posthog.capture("login_success", {
+					method: "google",
+					userId: userCredential.user.uid,
+					isNewUser: false,
+				});
 			}
 
 			// Only redirect after the session is set
 			router.push("/home");
 		} catch (error) {
+			posthog.capture("signup_error", {
+				method: "google",
+				error: error instanceof Error ? error.message : "Unknown error",
+			});
+
 			toast({
 				variant: "destructive",
 				title: "Error",

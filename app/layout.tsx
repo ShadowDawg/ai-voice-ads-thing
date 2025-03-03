@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthContextProvider } from "./context/AuthContext";
 import { PostHogProvider, Providers } from "./providers";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,10 @@ export default function RootLayout({
 			<body className={inter.className}>
 				<Providers>
 					<PostHogProvider>
-						<AuthContextProvider>{children}</AuthContextProvider>
+						<AuthContextProvider>
+							{children}
+							<Analytics />
+						</AuthContextProvider>
 					</PostHogProvider>
 				</Providers>
 			</body>

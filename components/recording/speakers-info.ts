@@ -4,7 +4,7 @@ const PREDEFINED_SPEAKERS = {
 	MaleNarrator: {
 		role: "MaleNarrator",
 		voice: "male1",
-		color: "#4ECDC4", // Teal
+		color: "#89AC46", // Green
 		voiceId: "dXtC3XhB9GtPusIpNtQx",
 		example_file_path: "voice-examples/hale.mp3",
 	},
@@ -18,14 +18,14 @@ const PREDEFINED_SPEAKERS = {
 	YoungWoman: {
 		role: "YoungWoman",
 		voice: "female1",
-		color: "#FF6B6B", // Red
+		color: "#D84040", // Red
 		voiceId: "bIQlQ61Q7WgbyZAL7IWj",
 		example_file_path: "voice-examples/faith.mp3",
 	},
 	YoungMan: {
 		role: "YoungMan",
 		voice: "male2",
-		color: "#00FF00", // Green
+		color: "#FF9D23", // Yellow
 		voiceId: "TX3LPaxmHKxFdv7VOQHJ",
 		example_file_path: "voice-examples/liam.mp3",
 	},

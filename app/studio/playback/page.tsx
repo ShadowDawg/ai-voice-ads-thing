@@ -30,6 +30,13 @@ function PlaybackContent() {
 	);
 	const [overallTime, setOverallTime] = useState(0);
 
+	// Helper function to format role names by adding spaces before capital letters
+	const formatRoleName = (role: string) => {
+		// Don't format "silence" special role
+		if (role === "silence") return role;
+		return role.replace(/([A-Z])/g, " $1").trim();
+	};
+
 	useEffect(() => {
 		return () => {
 			if (audioRef.current) {
@@ -394,7 +401,7 @@ function PlaybackContent() {
 										onClick={() => playVoiceLine(index)}
 									>
 										<p className="text-sm mb-1 opacity-80">
-											{line.role}
+											{formatRoleName(line.role)}
 										</p>
 										<p className="text-5xl font-medium cursor-pointer">
 											{line.text}
