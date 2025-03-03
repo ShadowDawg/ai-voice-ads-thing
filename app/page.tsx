@@ -41,9 +41,9 @@ export default function Home() {
 							<h3
 								className={`${dm_serif.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl text-white mb-6`}
 							>
-								Top-notch designs,
-								<br className="hidden sm:block" />
-								delivered at your doorstep.
+								Ludicrously simple
+								{/* <br className="hidden sm:block" />
+								delivered at your doorstep. */}
 							</h3>
 						</div>
 
@@ -248,7 +248,7 @@ export default function Home() {
 										className={`${dm_sans.className} text-sm sm:text-base md:text-lg text-sec`}
 									>
 										Your professional voice ad is generated
-										automatically using AI technology.
+										within seconds using AI.
 									</p>
 								</div>
 							</div>
@@ -259,7 +259,7 @@ export default function Home() {
 				{/* Never spend money section */}
 				<section className="min-h-[60vh] container mx-auto px-4 py-12 sm:py-16 md:py-0 sm:h-screen flex items-center justify-center">
 					<div className="flex flex-col items-center text-center">
-						<div className="flex flex-col sm:flex-row items-center">
+						<div className="flex flex-col sm:flex-row items-center justify-center w-full">
 							{/* Left decorative mic icon with negative rotation */}
 							<div className="hidden sm:block mr-4">
 								<svg
@@ -273,7 +273,7 @@ export default function Home() {
 								</svg>
 							</div>
 
-							<div>
+							<div className="sm:mx-auto sm:text-center">
 								<h2
 									className={`${dm_sans.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-white mb-4 max-w-3xl`}
 								>
@@ -282,7 +282,7 @@ export default function Home() {
 									voice actors ever again.
 								</h2>
 								<p
-									className={`${dm_sans.className} text-base sm:text-lg md:text-xl lg:text-2xl text-sec mb-8 sm:mb-10 max-w-2xl`}
+									className={`${dm_sans.className} text-base sm:text-lg md:text-xl lg:text-2xl text-sec mb-8 sm:mb-10 max-w-2xl mx-auto`}
 								>
 									Professional voiceovers without the
 									professional invoices.
@@ -367,8 +367,10 @@ export default function Home() {
 							{/* Social media links */}
 							<div className="flex space-x-4 mb-4">
 								<a
-									href="#"
+									href="https://x.com/DevvMandal"
 									className="text-zinc-500 hover:text-vivid transition-colors"
+									target="_blank"
+									rel="noopener noreferrer"
 								>
 									<svg
 										viewBox="0 0 24 24"
@@ -381,8 +383,10 @@ export default function Home() {
 									</svg>
 								</a>
 								<a
-									href="#"
+									href="https://www.linkedin.com/in/dev-mandal-iitm/"
 									className="text-zinc-500 hover:text-vivid transition-colors"
+									target="_blank"
+									rel="noopener noreferrer"
 								>
 									<svg
 										viewBox="0 0 24 24"
