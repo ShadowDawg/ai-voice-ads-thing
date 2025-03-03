@@ -30,25 +30,34 @@ export function Providers({ children }: { children: React.ReactNode }) {
 	);
 }
 
+// export function PostHogProvider({ children }: { children: React.ReactNode }) {
+// 	useEffect(() => {
+// 		posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
+// 			api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+// 			ui_host: "https://us.posthog.com",
+// 			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
+// 			capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+// 		});
+// 	}, []);
+
+// 	return (
+// 		<PHProvider client={posthog}>
+// 			<SuspendedPostHogPageView />
+// 			{children}
+// 		</PHProvider>
+// 	);
+// }
+
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
-			api_host:
-				process.env.NEXT_PUBLIC_POSTHOG_HOST ||
-				"https://us.i.posthog.com",
-			// api_host: "https://addie.co.in/ingest",
-			ui_host: "https://us.posthog.com",
-			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
+			api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 			capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
 		});
 	}, []);
 
-	return (
-		<PHProvider client={posthog}>
-			<SuspendedPostHogPageView />
-			{children}
-		</PHProvider>
-	);
+	return <PHProvider client={posthog}>{children}</PHProvider>;
 }
 
 function PostHogPageView() {
