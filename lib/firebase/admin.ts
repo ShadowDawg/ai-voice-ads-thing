@@ -25,7 +25,8 @@ if (!getApps().length) {
 				const rawValue = process.env.FIREBASE_PRIVATE_KEY || "{}";
 				// Remove surrounding quotes if present (handles both ' and " quotes)
 				const cleanedJson = rawValue.replace(/^['"]|['"]$/g, "");
-				return JSON.parse(cleanedJson).privateKey;
+				// return JSON.parse(cleanedJson).privateKey;
+				return JSON.parse(cleanedJson).privateKey.replace(/\\n/g, "\n");
 			} catch (error) {
 				console.error("Error parsing private key:", error);
 				return "";
@@ -44,14 +45,14 @@ if (!getApps().length) {
 	initializeApp({
 		credential: cert(serviceAccountConfig as ServiceAccount),
 	});
-
-	console.log(
-		"Firebase private key sample:",
-		process.env.FIREBASE_PRIVATE_KEY?.slice(0, 20)
-	);
+	var rawValue = process.env.FIREBASE_PRIVATE_KEY || "{}";
+	// Remove surrounding quotes if present (handles both ' and " quotes)
+	var cleanedJson = rawValue.replace(/^['"]|['"]$/g, "");
+	var privKey = JSON.parse(cleanedJson).privateKey;
+	console.log("Firebase private key sample:", privKey.slice(0, 140));
 	console.log(
 		"Formatted key sample:",
-		process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n").slice(0, 20)
+		privKey.replace(/\\n/g, "\n").slice(0, 140)
 	);
 }
 
