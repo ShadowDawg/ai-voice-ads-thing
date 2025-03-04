@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DurationSelector } from "@/components/recording/duration-selector";
 import { SpeakersSetup } from "@/components/recording/speakers-setup";
 import { ScriptGeneration } from "@/components/recording/script-generation";
@@ -33,24 +33,19 @@ export default function NewRecordingPage() {
 		script: { lines: [] },
 		audioUrl: "",
 	});
+	const eventsCaptured = useRef({
+		processStarted: false,
+	});
 
 	const steps: Step[] = ["duration", "speakers", "script", "generation"];
 
 	// Track page view and initial step
 	useEffect(() => {
-		// Add debugging
-		console.log("Studio page mounted, PostHog instance:", posthog);
-
-		if (posthog && typeof posthog.capture === "function") {
-			console.log(
-				"Attempting to capture ad_creation_process_started event"
-			);
+		if (!eventsCaptured.current.processStarted) {
 			posthog.capture("ad_creation_process_started", {
 				initial_step: "duration",
 			});
-			console.log("Capture method called");
-		} else {
-			console.error("PostHog not properly initialized:", posthog);
+			eventsCaptured.current.processStarted = true;
 		}
 	}, [posthog]);
 
@@ -80,15 +75,15 @@ export default function NewRecordingPage() {
 		// 	});
 		// }
 
-		if (data.audioUrl) {
-			posthog.capture("step_ad_generation_complete", {
-				audio_url: data.audioUrl,
-			});
+		// if (data.audioUrl) {
+		// 	posthog.capture("step_ad_generation_complete", {
+		// 		audio_url: data.audioUrl,
+		// 	});
 
-			posthog.capture("ad_creation_process_completed", {
-				audio_url: data.audioUrl,
-			});
-		}
+		// 	posthog.capture("ad_creation_process_completed", {
+		// 		audio_url: data.audioUrl,
+		// 	});
+		// }
 	};
 
 	const goToNextStep = () => {

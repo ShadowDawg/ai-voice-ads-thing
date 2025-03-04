@@ -170,7 +170,9 @@ export function AdGeneration({
 					await storeResponse.json();
 
 				// Navigate to the playback page
-				router.push(`/studio/playback?id=${storedRecording.id}`);
+				router.push(
+					`/studio/playback?id=${storedRecording.id}&from=studio`
+				);
 			} catch (error: unknown) {
 				if (mounted) {
 					setError(
@@ -194,9 +196,9 @@ export function AdGeneration({
 	}, []); // Keep the empty dependency array
 
 	// useEffect(() => {
-	// 	posthog.capture("step_ad_generation_complete", {});
+	// posthog.capture("step_ad_generation_complete", {});
 
-	// 	posthog.capture("ad_creation_process_completed", {});
+	// posthog.capture("ad_creation_process_completed", {});
 	// }, []);
 
 	return (

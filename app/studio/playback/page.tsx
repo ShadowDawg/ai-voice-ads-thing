@@ -10,11 +10,13 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { StoredRecording, VoiceLineForPlayback } from "@/types/voice-types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { dm_sans } from "@/lib/fonts/fonts";
+import posthog from "posthog-js";
 
 function PlaybackContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const recordingId = searchParams.get("id");
+	const fromStudio = searchParams.get("from") === "studio";
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [voiceLines, setVoiceLines] = useState<VoiceLineForPlayback[]>([]);
@@ -23,6 +25,7 @@ function PlaybackContent() {
 	);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const eventsCaptured = useRef(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [totalDuration, setTotalDuration] = useState(0);
 	const [individualDurations, setIndividualDurations] = useState<number[]>(
@@ -38,13 +41,24 @@ function PlaybackContent() {
 	};
 
 	useEffect(() => {
+		// Check if the user came from studio via query param
+		if (fromStudio && recordingId && !eventsCaptured.current) {
+			console.log("Capturing recording complete event");
+
+			posthog.capture("step_ad_generation_complete", {});
+			posthog.capture("ad_creation_process_completed", {});
+
+			// Mark these events as captured to prevent duplicate firing
+			eventsCaptured.current = true;
+		}
+
 		return () => {
 			if (audioRef.current) {
 				audioRef.current.pause();
 				audioRef.current = null;
 			}
 		};
-	}, []);
+	}, [recordingId, fromStudio]);
 
 	useEffect(() => {
 		const auth = getAuth();
