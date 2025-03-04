@@ -39,7 +39,7 @@ export default function Home() {
 					<div className="container mx-auto px-4">
 						<div className="text-center mb-8 md:mb-16">
 							<h3
-								className={`${dm_serif.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl text-white mb-6`}
+								className={`${dm_serif.className} text-2xl sm:text-3xl md:text-4xl lg:text-6xl text-vivid mb-6`}
 							>
 								Ludicrously simple
 								{/* <br className="hidden sm:block" />
@@ -167,7 +167,7 @@ export default function Home() {
 									<h4
 										className={`${dm_sans.className} text-lg sm:text-xl md:text-2xl text-white mb-2 md:mb-4`}
 									>
-										Tell us your vision
+										Tell Addie your vision
 									</h4>
 									<p
 										className={`${dm_sans.className} text-sm sm:text-base md:text-lg text-sec`}

@@ -65,7 +65,7 @@ export default async function AuthPage() {
 					<AuthForm />
 
 					{/* Terms of Service */}
-					<p className="text-sm text-gray-400 text-center">
+					{/* <p className="text-sm text-gray-400 text-center">
 						By continuing, you agree to our{" "}
 						<a href="/terms" className="underline hover:text-white">
 							Terms of Service
@@ -77,7 +77,7 @@ export default async function AuthPage() {
 						>
 							Privacy Policy
 						</a>
-					</p>
+					</p> */}
 				</div>
 			</div>
 		</div>
