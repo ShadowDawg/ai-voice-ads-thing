@@ -510,7 +510,7 @@ export function ScriptGeneration({
 								limited to {wordLimit} words)
 							</label>
 							<Input
-								placeholder="A compelling story about..."
+								placeholder="An ad for..."
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
 								onKeyDown={(e) => {
