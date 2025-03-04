@@ -456,7 +456,7 @@ export function ScriptGeneration({
 												onFocus={(e) =>
 													autoResizeTextarea(e)
 												}
-												className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-1px-solid border-sec/60 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-lg sm:text-2xl leading-[1.4] sm:leading-[1.5]"
+												className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-1px-solid border-sec/60 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-[1.4] sm:leading-[1.5]"
 												placeholder="Speaker's line..."
 											/>
 											<div className="flex justify-between text-[10px] sm:text-xs text-gray-400">
@@ -632,7 +632,7 @@ export function ScriptGeneration({
 																		e
 																	)
 																}
-																className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-0 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-lg sm:text-2xl leading-[1.4] sm:leading-[1.5]"
+																className="min-h-[60px] sm:min-h-[80px] w-full resize-none bg-transparent border-0 text-cornsilk placeholder:text-gray-400 focus:border focus:border-cornsilk focus:ring-cornsilk rounded-xl p-2 sm:p-3 text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-[1.4] sm:leading-[1.5]"
 																placeholder="Speaker's line..."
 															/>
 														</motion.div>
