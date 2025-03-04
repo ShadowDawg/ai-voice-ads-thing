@@ -51,8 +51,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
-		posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
-			api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+		// posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
+		// 	api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+		// 	// ui_host: "https://us.posthog.com",
+		// 	capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+		// 	person_profiles: "always", // or 'always' to create profiles for anonymous users as well
+		// });
+
+		// using api keys:
+		posthog.init("phc_7WP1cSZ0FguZ8v2yxybqRYEKZDyPAN59rNMjnqdQOXv", {
+			api_host: "https://us.i.posthog.com",
 			// ui_host: "https://us.posthog.com",
 			capture_pageview: false, // Disable automatic pageview capture, as we capture manually
 			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
