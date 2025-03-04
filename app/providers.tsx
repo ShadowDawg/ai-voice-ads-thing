@@ -57,6 +57,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 			capture_pageview: false, // Disable automatic pageview capture, as we capture manually
 			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
 		});
+
+		console.log("PostHog Key:", process.env.NEXT_PUBLIC_POSTHOG_KEY);
+		console.log("PostHog Host:", process.env.NEXT_PUBLIC_POSTHOG_HOST);
 	}, []);
 
 	return (
