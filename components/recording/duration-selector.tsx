@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { dm_sans } from "@/lib/fonts/fonts";
+import { useEffect } from "react";
+import posthog from "posthog-js";
 
 const DURATIONS = [
 	{ label: "15 seconds", value: 15 },
@@ -14,6 +16,13 @@ interface DurationSelectorProps {
 }
 
 export function DurationSelector({ value, onChange }: DurationSelectorProps) {
+	// Add PostHog tracking when component mounts
+
+	// console.log("Duration selector mounted, capturing event");
+	// posthog.capture("ad_creation_process_started", {
+	// 	initial_step: "duration",
+	// });
+
 	return (
 		<div className={`p-4 sm:p-6 md:p-8 ${dm_sans.className}`}>
 			<div className="space-y-2">

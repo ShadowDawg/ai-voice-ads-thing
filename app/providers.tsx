@@ -60,8 +60,8 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
 		// using api keys:
 		posthog.init("phc_7WP1cSZ0FguZ8v2yxybqRYEKZDyPAN59rNMjnqdQOXv", {
-			api_host: "https://us.i.posthog.com",
-			// ui_host: "https://us.posthog.com",
+			api_host: "https://addie.co.in/ingest",
+			ui_host: "https://us.posthog.com",
 			capture_pageview: false, // Disable automatic pageview capture, as we capture manually
 			person_profiles: "always", // or 'always' to create profiles for anonymous users as well
 		});

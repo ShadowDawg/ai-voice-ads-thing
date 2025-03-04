@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { ElevenLabsVoiceResponse, StoredRecording } from "@/types/voice-types";
+import posthog from "posthog-js";
 
 interface AdGenerationProps {
 	duration: number;
@@ -191,6 +192,12 @@ export function AdGeneration({
 			setProgress(0);
 		};
 	}, []); // Keep the empty dependency array
+
+	// useEffect(() => {
+	// 	posthog.capture("step_ad_generation_complete", {});
+
+	// 	posthog.capture("ad_creation_process_completed", {});
+	// }, []);
 
 	return (
 		<Card className="p-6 bg-prim border border-blackLighter">
