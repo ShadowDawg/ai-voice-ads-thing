@@ -23,12 +23,10 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={inter.className}>
 				<Providers>
-					<PostHogProvider>
-						<AuthContextProvider>
-							{children}
-							<Analytics />
-						</AuthContextProvider>
-					</PostHogProvider>
+					<AuthContextProvider>
+						<PostHogProvider>{children}</PostHogProvider>
+						<Analytics />
+					</AuthContextProvider>
 				</Providers>
 			</body>
 		</html>
