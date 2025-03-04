@@ -62,6 +62,14 @@ export default function AuthForm() {
 				throw new Error("Sign in failed - no user data received");
 			}
 
+			// Identify the user in PostHog
+			if (userCredential.user.email) {
+				posthog.identify(userCredential.user.uid, {
+					email: userCredential.user.email,
+					name: userCredential.user.displayName || undefined,
+				});
+			}
+
 			// Get the ID token from the user
 			const idToken = await userCredential.user.getIdToken();
 
@@ -82,6 +90,7 @@ export default function AuthForm() {
 			posthog.capture("login_success", {
 				method: "google",
 				userId: userCredential.user.uid,
+				email: userCredential.user.email || undefined,
 			});
 			router.push("/home");
 		} catch (error) {
@@ -109,6 +118,16 @@ export default function AuthForm() {
 			const userCredential = await signInWithGoogle();
 			if (!userCredential?.user) {
 				throw new Error("Sign in failed - no user data received");
+			}
+
+			// Identify the user in PostHog
+			if (userCredential.user.email) {
+				posthog.identify(userCredential.user.uid, {
+					email: userCredential.user.email,
+					name: `${data.firstName} ${data.lastName}`,
+					firstName: data.firstName,
+					lastName: data.lastName,
+				});
 			}
 
 			// Get the ID token from the user
@@ -141,12 +160,14 @@ export default function AuthForm() {
 				posthog.capture("signup_success", {
 					method: "google",
 					userId: userCredential.user.uid,
+					email: userCredential.user.email || undefined,
 					isNewUser: true,
 				});
 			} else {
 				posthog.capture("login_success", {
 					method: "google",
 					userId: userCredential.user.uid,
+					email: userCredential.user.email || undefined,
 					isNewUser: false,
 				});
 			}

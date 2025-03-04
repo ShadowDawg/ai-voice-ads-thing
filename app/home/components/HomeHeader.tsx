@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react"; // Import icons
 import { dm_sans, dm_serif } from "@/lib/fonts/fonts";
+import posthog from "posthog-js";
 
 export function HomeHeader() {
 	const { logout, user } = useAuth();
@@ -43,6 +44,9 @@ export function HomeHeader() {
 
 	const handleLogout = async () => {
 		try {
+			// Reset PostHog identification
+			posthog.reset();
+
 			await logout();
 			await fetch("/api/auth/logout", {
 				method: "POST",
