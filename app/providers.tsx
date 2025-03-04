@@ -10,6 +10,7 @@ import { usePostHog } from "posthog-js/react";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import PostHogPageView from "./PostHogPageView";
+import SuspendedPostHogPageView from "./PostHogPageView";
 export function Providers({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(
 		() =>
@@ -59,7 +60,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
 	return (
 		<PHProvider client={posthog}>
-			<PostHogPageView />
+			<SuspendedPostHogPageView />
 			{children}
 		</PHProvider>
 	);
