@@ -9,9 +9,8 @@ import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "VoiceAds - AI-Powered Voice Advertising",
-	description:
-		"Create professional voice ads for podcasts and radio in minutes using AI technology.",
+	title: "Shiro - Your AI Assistant",
+	description: "Automate the mundane and focus on what matters most.",
 };
 
 export default function RootLayout({
